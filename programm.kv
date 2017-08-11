@@ -1,0 +1,108 @@
+#:import SlideTransition kivy.uix.screenmanager.SlideTransition
+#:import NoTransition kivy.uix.screenmanager.NoTransition
+<Label>
+    text: "erste Seite"
+
+<Anzeige@Label>:
+    font_size: 20
+
+###### Hauptfenster ######
+<Hauptbildschirm>:
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            id: l1
+        BoxLayout:
+            size_hint: 1,0.2
+            Button:
+                text: "Konfiguration"
+                on_release:
+                    root.manager.transition = NoTransition()
+                    app.root.current="bsk"
+            Button:
+                text: "Canwerte anzeigen"
+                on_release:
+                    root.manager.transition = NoTransition()
+                    app.root.current="bs1cw"
+            Button:
+                text: 'Schliessen'
+                on_release: app.stop()
+
+###### Konfigurationsfenster ######
+<Bildschirm_Konfiguration>:
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Konfiguration'
+        BoxLayout:
+            size_hint: 1,0.2
+            Button:
+                text: 'zurück'
+                on_release:
+                    root.manager.transition = NoTransition()
+                    app.root.current="hbs"
+            Button:
+                text: 'DBC Datei laden'
+
+
+###### Bildschirm1 Canwerte ######
+
+<Bildschirm1_Canwerte>:
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'CAN Werte Fenster 1'
+        BoxLayout:
+            size_hint: 1,0.2
+            Button:
+                text: 'zurück'
+                on_release:
+                    root.manager.transition = NoTransition()
+                    app.root.current="hbs"
+            Button:
+                text: 'Weitere Canwerte'
+                on_release:
+                    root.manager.transition = NoTransition()
+                    app.root.current="bs2cw"
+
+###### Bildschirm2 Canwerte ######
+
+<Bildschirm2_Canwerte>:
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'CAN Werte Fenster 2'
+        BoxLayout:
+            size_hint: 1,0.2
+            Button:
+                text: 'zurück'
+                on_release:
+                    root.manager.transition = NoTransition()
+                    app.root.current="bs1cw"
+            Button:
+                text: 'Hauptbilschirm'
+                on_release:
+                    root.manager.transition = NoTransition()
+                    app.root.current="bsew"
+
+###### Bildschirm für Einzelwert anzeige ######
+
+<Bildschirm_Einzelwert>:
+    Label:
+        text: 'Einzelwert'
+
+
+
+###### ROOT ######
+Bildschirmverwalter:
+    Hauptbildschirm:
+        name: "hbs"
+        id: s1
+    Bildschirm_Konfiguration:
+        name: 'bsk'
+    Bildschirm1_Canwerte:
+        name: 'bs1cw'
+    Bildschirm2_Canwerte:
+        name: 'bs2cw'
+    Bildschirm_Einzelwert:
+        name: 'bsew'
