@@ -1,10 +1,52 @@
 #:import SlideTransition kivy.uix.screenmanager.SlideTransition
 #:import NoTransition kivy.uix.screenmanager.NoTransition
-<Label>
-    text: "erste Seite"
 
-<Anzeige@Label>:
-    font_size: 20
+<Name_des_werts@Label>
+    background_color: 1,1,1, 0.1
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        #source: 'HD_rahmen.png'
+    font_size: 30
+    size_hint: 1, 0.3
+    color: 0,0,0,1
+    valign: 'bottom'
+
+<Wert@Label>:
+    font_size: 40
+    color: 1,1,1,1
+    text_size: self.size
+    halign: 'right'
+    valign: 'middle'
+
+<Einheit@Label>:
+    font_size: 40
+    color: 1,1,1,1
+    text_size: self.size
+    halign: 'left'
+    valign: 'middle'
+############
+# Anzeige
+############
+<CAN_Wert_Anzeige>:
+    BoxLayout:
+        orientation: 'vertical'
+        #canvas.after:
+        #    Rectangle:
+        #        pos: self.pos
+        #        size: self.size
+                #source: 'HD_rahmen.png'
+        Name_des_werts:
+            id: n1
+            text: 'Name'
+        BoxLayout:
+            Wert:
+                id: w1
+                text: 'Wert'
+            Einheit:
+                id: e1
+                text: ' Einheit'
 
 ###### Hauptfenster ######
 <Hauptbildschirm>:
@@ -12,6 +54,8 @@
         orientation: 'vertical'
         Label:
             id: l1
+            text: ''
+
         BoxLayout:
             size_hint: 1,0.2
             Button:
@@ -51,7 +95,21 @@
     BoxLayout:
         orientation: 'vertical'
         Label:
+            size_hint: 1,0.1
             text: 'CAN Werte Fenster 1'
+        GridLayout:
+            name: 'botschaft'
+            rows: 2
+            padding: 1
+            spacing: 1
+            CAN_Wert_Anzeige:
+                id: a1
+            CAN_Wert_Anzeige:
+                id: a2
+            CAN_Wert_Anzeige:
+                id: a3
+            CAN_Wert_Anzeige:
+                id: a4
         BoxLayout:
             size_hint: 1,0.2
             Button:
@@ -71,7 +129,21 @@
     BoxLayout:
         orientation: 'vertical'
         Label:
+            size_hint: 1,0.1
             text: 'CAN Werte Fenster 2'
+        GridLayout:
+            name: 'botschaft'
+            rows: 2
+            padding: 1
+            spacing: 1
+            CAN_Wert_Anzeige:
+                id: a1
+            CAN_Wert_Anzeige:
+                id: a2
+            CAN_Wert_Anzeige:
+                id: a3
+            CAN_Wert_Anzeige:
+                id: a4
         BoxLayout:
             size_hint: 1,0.2
             Button:
@@ -88,10 +160,21 @@
 ###### Bildschirm für Einzelwert anzeige ######
 
 <Bildschirm_Einzelwert>:
-    Label:
-        text: 'Einzelwert'
-
-
+    BoxLayout:
+        orientation: 'vertical'
+        Name_des_werts:
+            id: ew_n
+            text: 'Bildschirm Einzelwert'
+            font_size: 60
+        BoxLayout:
+            Wert:
+                id: w1
+                text: 'wert'
+                font_size: 100
+            Einheit:
+                id: ew_e
+                text: 'Einheit'
+                font_size: 100
 
 ###### ROOT ######
 Bildschirmverwalter:
