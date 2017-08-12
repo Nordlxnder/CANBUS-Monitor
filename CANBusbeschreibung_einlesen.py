@@ -3,15 +3,8 @@
 #dateiname=""
 class CANBUS_Konfiguration():
 
-    def __init__(self,*args,**kwargs):
-        #self.dateiname=dateiname
-        pass
-
     def Datei_einlesen(self,dateiname):
         Datei=open(dateiname,'r')
-        #self.Anzeige=root
-        #Datei=open("netzwerk.dbc",'r')
-        #lines=len(f.readlines())
         inhalt_der_datei=Datei.readlines()
         # Kopfdaten gehen bis Zeile 2
         i = 3                       # Startzeile
@@ -76,7 +69,17 @@ class CANBUS_Konfiguration():
 
         return (self)
 
-
-if __name__=="__main__":
-    dateiname="netzwerk2.dbc"
-    CANBUS_Konfiguration().Datei_einlesen(dateiname)
+    def uebersicht_can_botschaften(self,Bildschirmverwalter,canbus_konfiguration):
+        '''Übersicht im Konfigurationsfenster der einzelnen CAN Botschaften'''
+        # Überschrift Botschaft Startbit Faktor Offset
+        Bildschirmverwalter.ids.s101.ids.a1.text = str("                    Botschaft   Startbit   Faktor      Offset")
+        k = 1
+        while k <= 8:
+            k_bot = eval("Bildschirmverwalter.ids.s101.ids.a" + str(k + 1))
+            bot = str(canbus_konfiguration.id_nr[k - 1][0])
+            sb = str(canbus_konfiguration.id_nr[k - 1][1])
+            fkt = '{:.8}'.format(str(canbus_konfiguration.id_nr[k - 1][2]))
+            ofs = str(canbus_konfiguration.id_nr[k - 1][3])
+            k_bot.text = "Anzeige  {}".format(
+                k) + "     " + bot + "              " + sb + "       " + fkt + "      " + ofs
+            k += 1

@@ -56,9 +56,6 @@ class CAN_Wert_Anzeige(BoxLayout):
             pass
     pass
 
-
-
-
 class Programm(App):
     title = 'CANbus'
     icon = 'canbus2.png'
@@ -67,17 +64,22 @@ class Programm(App):
 
         Initialisierung
 
-            Prüfung ob eine CAN Karte vorhanden ist ,
-            wenn ja dann wird 500kBaud eingestellt
+           1 Prüfung ob eine CAN Karte vorhanden ist ,
+             wenn ja dann wird 500kBaud eingestellt
 
-            Einlesen der CANBUS Beschreibungsdatei
-            Anpassen der Anzeigeelemente mit entspechend
-            der Beschreibungsdatei (Name und Einheit)
+           2 Anzeige der einzelnen CAN Botschaften im
+             Konfigurationsfenster
+
+           3 Einlesen der CANBUS Beschreibungsdatei
+             Anpassen der Anzeigeelemente mit entspechend
+             der Beschreibungsdatei (Name und Einheit)
+
+
 
         '''
 
 
-        # Überprüfung und Anzeige auf den Hauptbildschirm
+        # 1 Überprüfung und Anzeige auf den Hauptbildschirm
         # ob eine Cankarte vorhaden ist
         global Bildschirmverwalter
         Bildschirmverwalter = self.root
@@ -98,15 +100,16 @@ class Programm(App):
         global canbus_konfiguration
         canbus_konfiguration = CANBUS_Konfiguration().Datei_einlesen(dateiname)
 
+        # 2 Anzeige einer Übersicht der CANBUS Botschaften im Konfigurationsfenster
+        CANBUS_Konfiguration().uebersicht_can_botschaften(Bildschirmverwalter,canbus_konfiguration)
+
+        # 3 Aktualisierung der Anzeigen von Name und Einheit
         # erstellt eine Liste der Anzeigeelement für die weitere Verwendung
         liste_anzeigen = Anzeigenelemente().liste_erstellen(Bildschirmverwalter)
-
-        # Aktualisierung der Anzeigen von Name und Einheit
         Anzeigenelemente().Anzeige_Name_Einheit_aktualisieren(liste_anzeigen, canbus_konfiguration.name_einheit)
 
         # Hintergrundfarbe ist Weis
         Window.clearcolor = (0.1,0.3,0.8,1)
-
 
 if __name__=="__main__":
     Programm().run()

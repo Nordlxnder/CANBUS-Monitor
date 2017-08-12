@@ -26,6 +26,17 @@
     text_size: self.size
     halign: 'left'
     valign: 'middle'
+
+<Konf@Label>:
+    font_size: 35
+    color: 1,1,1,1
+    text_size: self.size
+    halign: 'left'
+    #valign: 'middle'
+
+
+##################################################################################
+
 ############
 # Anzeige
 ############
@@ -76,8 +87,35 @@
 <Bildschirm_Konfiguration>:
     BoxLayout:
         orientation: 'vertical'
-        Label:
-            text: 'Konfiguration'
+        BoxLayout:
+            orientation: 'vertical'
+            Konf:
+                id: a1
+                text: " "
+            Konf:
+                id: a2
+                text: " "
+            Konf:
+                id: a3
+                text: "                            Bitte DBC Datei laden!"
+            Konf:
+                id: a4
+                text: " "
+            Konf:
+                id: a5
+                text: " "
+            Konf:
+                id: a6
+                text: " "
+            Konf:
+                id: a7
+                text: " "
+            Konf:
+                id: a8
+                text: " "
+            Konf:
+                id: a9
+                text: " "
         BoxLayout:
             size_hint: 1,0.2
             Button:
@@ -181,8 +219,7 @@ Bildschirmverwalter:
     Hauptbildschirm:
         id: s0
         name: "hbs"
-    Bildschirm_Konfiguration:
-        name: 'bsk'
+
     Bildschirm1_Canwerte:
         id: s1
         name: 'bs1cw'
@@ -192,3 +229,6 @@ Bildschirmverwalter:
     Bildschirm_Einzelwert:
         id: s100
         name: 'bsew'
+    Bildschirm_Konfiguration:
+        id: s101
+        name: 'bsk'
