@@ -16,9 +16,46 @@ class Bildschirmverwalter(ScreenManager): pass
 class Hauptbildschirm(Screen):pass
 class Bildschirm1_Canwerte(Screen):pass
 class Bildschirm2_Canwerte(Screen):pass
-class Bildschirm_Einzelwert(Screen): pass
+class Bildschirm_Einzelwert(Screen):
+    def on_touch_down(self, touch):
+        global Bildschirmverwalter
+        obj_Einzelwert=Bildschirmverwalter.ids.s100
+        if self.collide_point( *touch.pos ):
+            # Umschalten zur Einwertanzeige
+            Bildschirmverwalter.transition = NoTransition()
+            Bildschirmverwalter.current = obj_Einzelwert.altesFenster
+            return True
+        else:
+            #print("Outsside")
+            super(CAN_Wert_Anzeige, self).on_touch_down(touch)
+            pass
+    pass
 class Bildschirm_Konfiguration(Screen):pass
-class CAN_Wert_Anzeige(BoxLayout):pass
+class CAN_Wert_Anzeige(BoxLayout):
+    def on_touch_down(self, touch):
+        global Bildschirmverwalter
+        obj_Einzelwert=Bildschirmverwalter.ids.s100
+        if self.collide_point( *touch.pos ):
+            # root = objekt Bildverwalter oberste Ebene
+            root=self.parent.parent.parent.parent
+            root.letzter_Bildschirm_Name= self.parent.parent.parent.name
+            # Auslesen des Textelementes der Anzeige auf die geklickt wurde
+            # Zuweisung des Textlabel für das Textlabel der Einzelbildanzeige
+            obj_Einzelwert.ids.n1.text =self.ids.n1.text
+            obj_Einzelwert.ids.w1.text =self.ids.w1.text
+            obj_Einzelwert.ids.e1.text =self.ids.e1.text
+            obj_Einzelwert.altesFenster=self.parent.parent.parent.name
+
+            # Umschalten zur Einwertanzeige
+            Bildschirmverwalter.transition = NoTransition()
+            Bildschirmverwalter.current = 'bsew'
+            return True
+        else:
+            #print("Outsside")
+            super(CAN_Wert_Anzeige, self).on_touch_down(touch)
+            pass
+    pass
+
 
 
 
@@ -26,8 +63,23 @@ class Programm(App):
     title = 'CANbus'
     icon = 'canbus2.png'
     def build(self):
+        '''
+
+        Initialisierung
+
+            Prüfung ob eine CAN Karte vorhanden ist ,
+            wenn ja dann wird 500kBaud eingestellt
+
+            Einlesen der CANBUS Beschreibungsdatei
+            Anpassen der Anzeigeelemente mit entspechend
+            der Beschreibungsdatei (Name und Einheit)
+
+        '''
+
+
         # Überprüfung und Anzeige auf den Hauptbildschirm
         # ob eine Cankarte vorhaden ist
+        global Bildschirmverwalter
         Bildschirmverwalter = self.root
 
         global can0_exist
@@ -45,8 +97,6 @@ class Programm(App):
         '''
         global canbus_konfiguration
         canbus_konfiguration = CANBUS_Konfiguration().Datei_einlesen(dateiname)
-        #print(canbus_konfiguration.id_nr)
-        #print(canbus_konfiguration.name_einheit)
 
         # erstellt eine Liste der Anzeigeelement für die weitere Verwendung
         liste_anzeigen = Anzeigenelemente().liste_erstellen(Bildschirmverwalter)
