@@ -7,7 +7,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 
 import canbusstatus   # Status und setzen der Baudrate
-
+from Anzeigen import Anzeigenelemente
 from CANBusbeschreibung_einlesen import CANBUS_Konfiguration
 
 
@@ -31,7 +31,7 @@ class Programm(App):
         Bildschirmverwalter = self.root
 
         global can0_exist
-        label_hauptbildschirm = Bildschirmverwalter.ids.s1.ids.l1
+        label_hauptbildschirm = Bildschirmverwalter.ids.s0.ids.l1
         can0_exist = canbusstatus.can0_check(label_hauptbildschirm)
 
         # DBC Datei einlesen und der Variable canbus_konfiguration zuweisen
@@ -45,9 +45,14 @@ class Programm(App):
         '''
         global canbus_konfiguration
         canbus_konfiguration = CANBUS_Konfiguration().Datei_einlesen(dateiname)
-        print(canbus_konfiguration.id_nr)
-        print(canbus_konfiguration.name_einheit)
+        #print(canbus_konfiguration.id_nr)
+        #print(canbus_konfiguration.name_einheit)
 
+        # erstellt eine Liste der Anzeigeelement für die weitere Verwendung
+        liste_anzeigen = Anzeigenelemente().liste_erstellen(Bildschirmverwalter)
+
+        # Aktualisierung der Anzeigen von Name und Einheit
+        Anzeigenelemente().Anzeige_Name_Einheit_aktualisieren(liste_anzeigen, canbus_konfiguration.name_einheit)
 
         # Hintergrundfarbe ist Weis
         Window.clearcolor = (0.1,0.3,0.8,1)
