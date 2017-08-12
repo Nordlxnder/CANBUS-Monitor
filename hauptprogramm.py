@@ -9,8 +9,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 import canbusstatus   # Status und setzen der Baudrate
 from Anzeigen import Anzeigenelemente
 from CANBusbeschreibung_einlesen import CANBUS_Konfiguration
-
-
+from start_canbus import CANBUS #, CANBUS_Botschaften
 
 class Bildschirmverwalter(ScreenManager): pass
 class Hauptbildschirm(Screen):pass
@@ -74,7 +73,7 @@ class Programm(App):
              Anpassen der Anzeigeelemente mit entspechend
              der Beschreibungsdatei (Name und Einheit)
 
-
+           4 Start des CANBUSes
 
         '''
 
@@ -107,6 +106,9 @@ class Programm(App):
         # erstellt eine Liste der Anzeigeelement für die weitere Verwendung
         liste_anzeigen = Anzeigenelemente().liste_erstellen(Bildschirmverwalter)
         Anzeigenelemente().Anzeige_Name_Einheit_aktualisieren(liste_anzeigen, canbus_konfiguration.name_einheit)
+
+        # 4 CANBUS Start mit den ersten 4 Werten
+        CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[0:4])
 
         # Hintergrundfarbe ist Weis
         Window.clearcolor = (0.1,0.3,0.8,1)

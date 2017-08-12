@@ -1,6 +1,6 @@
 #!/usr/bin/python python
 # -*- coding: utf-8 -*-
-#dateiname=""
+
 class CANBUS_Konfiguration():
 
     def Datei_einlesen(self,dateiname):
