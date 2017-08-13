@@ -65,6 +65,8 @@ class Programm(App):
 
            1 Prüfung ob eine CAN Karte vorhanden ist ,
              wenn ja dann wird 500kBaud eingestellt
+             und bindet den CAN Socket an die Can0
+             Schnittstelle
 
            2 Anzeige der einzelnen CAN Botschaften im
              Konfigurationsfenster
@@ -87,6 +89,14 @@ class Programm(App):
         label_hauptbildschirm = Bildschirmverwalter.ids.s0.ids.l1
         can0_exist = canbusstatus.can0_check(label_hauptbildschirm)
 
+        global can_interface
+        if can0_exist == True:
+            # Bindet den Socket an die can0 Schnittstelle
+            can_interface = socket.socket(socket.AF_CAN, socket.SOCK_RAW, socket.CAN_RAW)
+            # Name der Schnittstelle
+            interface = "can0"
+            can_interface.bind((interface,))
+
         # DBC Datei einlesen und der Variable canbus_konfiguration zuweisen
         dateiname = "CANBusbeschreibung.conf"
         '''
@@ -108,7 +118,8 @@ class Programm(App):
         Anzeigenelemente().Anzeige_Name_Einheit_aktualisieren(liste_anzeigen, canbus_konfiguration.name_einheit)
 
         # 4 CANBUS Start mit den ersten 4 Werten
-        CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[0:4])
+        if can0_exist == True:
+            CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[0:4])
 
         # Hintergrundfarbe ist Weis
         Window.clearcolor = (0.1,0.3,0.8,1)
