@@ -1,3 +1,5 @@
+#!/usr/bin/python python
+# -*- coding: utf-8 -*-
 """
 Beschreibung
 
@@ -15,11 +17,25 @@ import struct
 import threading ,sys
 import binascii
 import time
-from kivy.uix.screenmanager import SlideTransition,NoTransition
-
 
 class CANBUS():
-    def botschaften_sortieren(self,canbus_konfiguration):
+
+    def can0_schnittstelle_aktivieren(self):
+        '''
+            Bindet den Socket an die can0 Schnittstelle
+            Das Can Interface wird global gesetzt damit
+            es spaeter beim aktivieren  der threads fuer
+            die einzelnen Botschaften genutzt werden kann
+        '''
+
+        global can_interface
+        can_interface = socket.socket(socket.AF_CAN, socket.SOCK_RAW, socket.CAN_RAW)
+        # Name der Schnittstelle
+        interface = "can0"
+        can_interface.bind((interface,))
+        print("Can0 Schnittstelle ist aktiviert")
+
+    def botschaften_sortieren(self,canbus_konfiguration, fenster):
         '''
             Funtion:
 
@@ -30,8 +46,9 @@ class CANBUS():
                   (z.B. ID 100 Wert 2 und wert 3, ID 101 Wert1 und Wert4)
 
         '''
-        print(canbus_konfiguration)
-
+        global seite
+        seite=fenster
+        #print("Seite:\t",seite)
         # hier wird der Wert definiert nach dem sortiert wird
         #  ID    Startbit  Faktor
         #   0     1         2
@@ -43,8 +60,6 @@ class CANBUS():
             #[102, 4, 0.00152587890625, 0.0, 8]
             return bot[0]
         bot_sortiert = sorted(canbus_konfiguration, key=sortieren)
-        print(bot_sortiert)
-
 
         # Ermitteln von Werten mit der gleichen Botschaftens-ID
 
@@ -77,10 +92,10 @@ class CANBUS():
                 redu_botschaften.append(vector)
             s += 1
         # Es entsteht ein Vektor
-        # [Botschaft_ID, nr , [Startbit, Faktor, Offset, Antzeigenummer] ]
+        # [Botschaft_ID, nr , [Startbit, Faktor, Offset, Anzeigennummer] ]
         # z.B:
         # [100, 0, [2, 0.00152587890625, 0.0, 1], [4, 0.00152587890625, 0.0, 4]]
-        print("Reduzierte Botschaften:\t",redu_botschaften)
+        #print("Reduzierte Botschaften:\t",redu_botschaften)
 
         pass
         self.Start_can_filter(redu_botschaften)
@@ -129,8 +144,8 @@ class CANBUS():
             # Endlosschleife
             # can_pkt = self.can_interface.recv(16)
         # Ãœbergabe des Vektors Filter_IDs an die Klasse Anzeigen am Ende des Programms
-#        time.sleep(1.5)
-#        Anzeigen(self.filter_ids, bot_anzahl)
+        time.sleep(1.5)
+        Anzeigen(redu_botschaften, bot_anzahl)
 
 class CANBUS_Botschaften():
     '''
@@ -148,30 +163,27 @@ class CANBUS_Botschaften():
     def start_canbus(self,can_filter_id):
         '''
             Abschnitt Filter setzen
+
+            Beispiel fuer Filtersetzen
+
+                  id    0x64 Botschaft
+                mask    0x7FF
+
+                  id = 0b000001100100
+                mask = 0b011111111111
+
+        can_filter_id
+        [100, 0, [2, 0.00152587890625, 0.0, 1], [4, 0.00152587890625, 0.0, 4]]
+
         '''
         self.can_filter_id=can_filter_id[0]
         self.anzeige_startbit=can_filter_id
-        #self.zelle_stop=can_filter_id[1]
         self.speicherzelle_nr=can_filter_id[1]
-        #print("Speicherzelle_nr:\t",self.speicherzelle_nr)
-        #self.speicherzelle=speicherzelle
-        self.can_interface = socket.socket(socket.AF_CAN, socket.SOCK_RAW, socket.CAN_RAW)
-            # Name der Schnittstelle
-        interface = "can0"
-        try:
-            self.can_interface.bind((interface,))
-
-        except OSError as fehler:
-            # Anzeige der Warmeldung im Konfigurationsfenster
-            Warnmeldung="Warnung die Verbindung konnte nicht hergestellt werden!"
-            #self.root.ids.bsk1.ids.ska1.text=Warnmeldung
-            print("Warnung die Verbindung konnte nicht hergestellt werden!", fehler)
-            return True
-
+        print("Botschaftsid:\t",self.can_filter_id)
         filter_mask=0x7FF
-
+        global can_interface
         #can_interface.setsockopt(socket.SOL_CAN_RAW, socket.CAN_RAW_FILTER,struct.pack("II", filter_id, mask))
-        self.can_interface.setsockopt(socket.SOL_CAN_RAW, socket.CAN_RAW_FILTER,struct.pack("II", self.can_filter_id,filter_mask))
+        can_interface.setsockopt(socket.SOL_CAN_RAW, socket.CAN_RAW_FILTER,struct.pack("II", self.can_filter_id,filter_mask))
 
         '''
             CANbus lesen Start des Abfrageprozesses als parallelen Prozess
@@ -183,3 +195,100 @@ class CANBUS_Botschaften():
         can_lesen.daemon = True
         can_lesen.start()
 
+    def stop_can_lesen(self):
+        #print ("Stoplesen: \t",stop_lesen)
+        # Stoppt den Thread für die Anzeige
+        stop_anzeige.set()
+        # Stoppt die Threads für die CAN Botschaften
+        s=0
+        while s<len(stop_lesen):
+            stop_lesen[s].set()
+            s +=1
+        #print ("Stoplesen: \t",stop_lesen)
+        return True
+    pass
+
+    def __canbus_Botschaft_lesen__(self, arg1, stop_lesen):
+        '''
+
+        '''
+        global can_messpkt
+        #print("Speicherzelle2:\t",self.speicherzelle_nr)
+        # .is_set() fragt das Flag ab ob das Ereignis gesetzt ist
+        while (not stop_lesen.is_set()):
+            # immer wenn eine Botschaft kommt wird der Wert ausgelesen
+            # Endlosschleife
+            #print("Speicherzelle3:\t",can_messpkt[self.speicherzelle_nr])
+            #can_messpkt[0]= self.can_interface.recv(16)
+            #can_messpkt[self.speicherzelle_nr]= self.can_interface.recv(16)
+            can_messpkt[self.speicherzelle_nr]= can_interface.recv(16)
+
+class Anzeigen():
+    '''
+    Funktionen
+    ==========
+
+    + vorgabe der Auffrischrate 2 Hz
+    + Werte in der CAN_Botschaft ermitteln
+    + Anzeige aktualisieren
+
+    filter_ids = ID, Speicherzelle [Startbit, Faktor, Offset, Anzeigeobjekt]
+    '''
+
+    def __init__(self,filter_ids,bot_anzahl,*args, **kwargs):
+        self.vec=filter_ids
+        self.bot_anzahl=bot_anzahl
+        # Übergabe Speicherzelle startbit Anzeigeobjekt
+        # Start der Aktualisierung der Anzeige als eigner Thread  mit 2 Hz
+        global stop_anzeige
+        stop_anzeige=threading.Event()
+        anzeigen_aktualisieren = threading.Thread(target=self.anzeige_auffrischen, args=(1,stop_anzeige))
+        anzeigen_aktualisieren.daemon = True
+        anzeigen_aktualisieren.start()
+        #print(self.vec)
+
+
+    def anzeige_auffrischen(self,arg2,stop_anzeige):
+        global can_messpkt
+        # 4 Werte a 16 bit Format
+        FMT = "<IB3x2s2s2s2s"
+        print("Messpunktvektor:\t",can_messpkt)
+        while (not stop_anzeige.is_set()):
+            # Refresrate
+            time.sleep(0.5)
+            # Schliefe Speicherzelle
+            n=0
+            #print("vec Länge:\t",len(self.vec[n][1]))
+            while n <= (self.bot_anzahl):
+                # Abfragen der Speicherzelle
+                speicher=can_messpkt[self.vec[n][1]]
+                # check ob schon ein Wert in der Zelle ist
+                if len(str(speicher))==1 :
+                    #print("Es wird keine Botschaft gesendet")
+                    pass
+                else:
+                    # Botschaft übersetzen
+                    can_id, length, w1, w2, w3, w4 = struct.unpack(FMT, speicher)
+                    daten=[can_id,w1, w2, w3, w4]
+                    anzahl=len(self.vec[n])-1
+                    # i=2 weil ID und die Speicherzelle abgezogen werden
+                    i=2
+                    while i <= anzahl:
+                        # hex_wert=startbit
+                        hex_wert=self.vec[n][i][0]
+                        faktor=self.vec[n][i][1]
+                        offset=self.vec[n][i][2]
+                        var=str(binascii.hexlify(daten[hex_wert]), 'ascii')
+                        # Numerischen Wert ermittel aus den Integer Wert + Faktor + Offset
+                        wert= int(var,16)*faktor+offset
+                        # kuerzen auf 2 nachkommastellen
+                        wert_kurz='{:.2f}'.format(wert)
+                        # Anzeige aktualisieren
+                        #self.vec[n][i][3].ids.w1.text=wert_kurz
+                        canwertanzeige= eval( "seite.ids.a" + str(i) + ".ids.w1")
+                        canwertanzeige.text=wert_kurz
+                        i +=1
+                #testanzeige= eval("root.ids.s" + str(seite) + ".ids.a" + str(i))
+                #canwertanzeige= eval( "seite.ids.a" + str(1) + ".ids.w1.text")
+                #print("Seite mit CAN Wert: \t",testanzeige)
+                n +=1

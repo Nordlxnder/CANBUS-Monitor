@@ -5,15 +5,50 @@ from kivy.app import App
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
+import socket
+import threading
 
 import canbusstatus   # Status und setzen der Baudrate
 from Anzeigen import Anzeigenelemente
 from CANBusbeschreibung_einlesen import CANBUS_Konfiguration
-from start_canbus import CANBUS #, CANBUS_Botschaften
+#from start_canbus import CANBUS #, CANBUS_Botschaften
+from botschaftsort import CANBUS , can_bot_lesen, stop_can_lesen
 
 class Bildschirmverwalter(ScreenManager): pass
-class Hauptbildschirm(Screen):pass
-class Bildschirm1_Canwerte(Screen):pass
+class Hauptbildschirm(Screen):
+    def canwerte1(self):
+        if can0_exist == True:
+            global canbus_konfiguration
+            redu_botschaften=CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[0:4])
+            print("Reduzierte Botschaften:\t",redu_botschaften)
+            for i in range(0 ,len(redu_botschaften)):
+                print("Task:\t",i)
+                stop= False
+                #[100, 0, [2, 0.00152587890625, 0.0, 1], [4, 0.00152587890625, 0.0, 4]]
+                #[Botschaft_ID, Speicher_nr , [Startbit, Faktor, Offset, Anzeigennummer]]
+                current=can_bot_lesen(redu_botschaften[i][0],stop)
+                # der Deamon wird aktiviert damit beim Programm
+                # schliessen alle threads beendet werden
+                current.daemon = True
+                current.start()
+        return True
+    def stop(self):
+        act_threads=threading.active_count()
+        print ("aktive Threads:\t",act_threads)
+        alle_threads=threading.enumerate()
+        print ("alle Threads:\t",alle_threads)
+        stop_can_lesen().stop()
+        print("Stopp gedrueckt")
+    pass
+class Bildschirm1_Canwerte(Screen):
+    def stop(self):
+        act_threads=threading.active_count()
+        print ("aktive Threads:\t",act_threads)
+        alle_threads=threading.enumerate()
+        print ("alle Threads:\t",alle_threads)
+        stop_can_lesen().stop()
+        print("Stopp gedrueckt")
+    pass
 class Bildschirm2_Canwerte(Screen):pass
 class Bildschirm_Einzelwert(Screen):
     def on_touch_down(self, touch):
@@ -89,16 +124,10 @@ class Programm(App):
         label_hauptbildschirm = Bildschirmverwalter.ids.s0.ids.l1
         can0_exist = canbusstatus.can0_check(label_hauptbildschirm)
 
-        global can_interface
-        if can0_exist == True:
-            # Bindet den Socket an die can0 Schnittstelle
-            can_interface = socket.socket(socket.AF_CAN, socket.SOCK_RAW, socket.CAN_RAW)
-            # Name der Schnittstelle
-            interface = "can0"
-            can_interface.bind((interface,))
-
         # DBC Datei einlesen und der Variable canbus_konfiguration zuweisen
-        dateiname = "CANBusbeschreibung.conf"
+        #dateiname = "CANBusbeschreibung.conf"
+        dateiname="canbus.conf"
+        #dateiname="CANBusbeschreibung.conf"
         '''
         <canbus_konfiguration> besitzt folgende Atributte
             .id_nr  beinhaltet [Id Startbit Faktor Offset Nummer der Anzeige]
@@ -119,7 +148,21 @@ class Programm(App):
 
         # 4 CANBUS Start mit den ersten 4 Werten
         if can0_exist == True:
-            CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[0:4])
+            #print("Vektor    :\t",canbus_konfiguration.id_nr[0:4])
+            CANBUS().can0_schnittstelle_aktivieren()
+        #    redu_botschaften=CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[0:4])
+        #    print("Reduzierte Botschaften:\t",redu_botschaften)
+        #    for i in range(0 ,len(redu_botschaften)):
+        #        print("Task:\t",i)
+        #        stop= False
+        #        #[100, 0, [2, 0.00152587890625, 0.0, 1], [4, 0.00152587890625, 0.0, 4]]
+        #        #[Botschaft_ID, Speicher_nr , [Startbit, Faktor, Offset, Anzeigennummer]]
+        #        current=can_bot_lesen(redu_botschaften[i][0],stop)
+        #        # der Deamon wird aktiviert damit beim Programm
+        #        # schliessen alle threads beendet werden
+        #        current.daemon = True
+        #        current.start()
+
 
         # Hintergrundfarbe ist Weis
         Window.clearcolor = (0.1,0.3,0.8,1)

@@ -16,6 +16,7 @@ def can0_check(label_hauptbildschrim):
     try:
         ausgabe = subprocess.check_output('ip -details link show can0', shell=True)
         subprocess.call("sudo ip link set can0 type can bitrate 500000", shell=True)
+        subprocess.call("sudo ip link set dev can0 up", shell=True)
         status = can_read_baudrate()
         #label_hauptbildschrim.text="Eine Cankarte ist vorhanden"
         label_hauptbildschrim.text="\nDie CAN Karte ist " + status[1] + "\nBaudrate: " + status[0]

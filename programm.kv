@@ -77,11 +77,14 @@
             Button:
                 text: "Canwerte anzeigen"
                 on_release:
+                    root.canwerte1()
                     root.manager.transition = NoTransition()
                     app.root.current="bs1cw"
             Button:
                 text: 'Schliessen'
-                on_release: app.stop()
+                on_release:
+                    root.stop()
+                    app.stop()
 
 ###### Konfigurationsfenster ######
 <Bildschirm_Konfiguration>:
@@ -153,6 +156,7 @@
             Button:
                 text: 'zurück'
                 on_release:
+                    root.stop()
                     root.manager.transition = NoTransition()
                     app.root.current="hbs"
             Button:
