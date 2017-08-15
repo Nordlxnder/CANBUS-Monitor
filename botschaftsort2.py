@@ -27,20 +27,8 @@ class CANBUS():
             die einzelnen Botschaften genutzt werden kann
         '''
 
-        global can_interface
-        can_interface = socket.socket(socket.AF_CAN, socket.SOCK_RAW, socket.CAN_RAW)
-        # Name der Schnittstelle
-        interface = "can0"
-        can_interface.bind((interface,))
-        #print("Can0 Schnittstelle ist aktiviert")
 
-        # Vektor für die uebergaber der Werte von den Threads Canlesen
-        # an Canwerte anzeigen
-        global can_messpkt
-        can_messpkt=[]
-        for x in range (4):
-            can_messpkt.append(9999)
-        print("Messpunkte", can_messpkt)
+
 
     def botschaften_sortieren(self,canbus_konfiguration):
         '''
@@ -107,28 +95,37 @@ class can_bot_lesen(threading.Thread):
     Quelle:
 
         https://docs.python.org/3/library/threading.html
+
+        jede Botschschaft benötigt einen eignen Socket
+        deshalb wird in jedem Thread die Schnittstelle neu eingebunden
+
     '''
 
     def __init__ (self,id,stop, speicher_nr):
         threading.Thread.__init__(self,name=id)
         self.id = id
-        print("ID:\t", self.id)
         self.stop=stop
         self.speicher_nr=speicher_nr
-        print("ID:\t", self.speicher_nr)
+
     def run(self):
+
+        can_interface = socket.socket(socket.AF_CAN, socket.SOCK_RAW, socket.CAN_RAW)
+        # Name der Schnittstelle
+        interface = "can0"
+        can_interface.bind((interface,))
+
         # Filter setzen
-        #filter_id=0x08A
         filter_mask=0x7FF
-        can_interface.setsockopt(socket.SOL_CAN_RAW,socket.CAN_RAW_FILTER,struct.pack("II",self.id,filter_mask))
-        FMT = "<IB3x2s2s2s2s"
+        can_interface.setsockopt(socket.SOL_CAN_RAW,
+        socket.CAN_RAW_FILTER,
+        struct.pack("II",self.id,filter_mask))
+
         # CAN lesen
         global stop, can_messpkt
         stop=self.stop
         while (not stop):
             can_messpkt[self.speicher_nr]=can_interface.recv(16)
-            can_id, length, w1, w2, w3, w4= struct.unpack(FMT,can_messpkt[self.speicher_nr])
-            print("Messpunkt:\t",self.id,can_id)
+            #print("Messpunkt:\t",self.id,can_messpkt[self.speicher_nr])
             #print("Messpunkt:\t",self.id,can_messpkt[self.speicher_nr])
 
 
@@ -136,22 +133,31 @@ class can_bot_lesen(threading.Thread):
 class can_lesen():
 
     def start(self,redu_botschaften):
+
+        # Vektor für die uebergaber der Werte von den Threads Canlesen
+        # an Canwerte anzeigen
+        global can_messpkt
+        can_messpkt=[]
+        for x in range (4):
+            can_messpkt.append(9999)
+
+
         self.redu_botschaften=redu_botschaften
-        current=['tast1','task2','task3','task4']
+        print (redu_botschaften)
+        stop= False
+        #'''
         for i in range(0 ,len(self.redu_botschaften)):
-            stop= False
+            #stop= False
             #[100, 0, [2, 0.00152587890625, 0.0, 1], [4, 0.00152587890625, 0.0, 4]]
             #[Botschaft_ID, Speicher_nr , [Startbit, Faktor, Offset, Anzeigennummer]]
             botschschafts_id=self.redu_botschaften[i][0]
             speicher_nr=self.redu_botschaften[i][1]
-
-            current[i]=can_bot_lesen(botschschafts_id, stop , speicher_nr)
+            current=can_bot_lesen(botschschafts_id, stop , speicher_nr)
             # der Deamon wird aktiviert damit beim Programm
             # schliessen alle threads beendet werden
-            current[i].daemon = True
-            current[i].start()
-
-
+            current.daemon = True
+            current.start()
+        #'''
     def stop(self):
         alle_threads=threading.enumerate()
         print ("alle Threads:\t",alle_threads)
@@ -170,6 +176,7 @@ class can_werte_anzeigen(threading.Thread):
         self.redu_botschaften = redu_botschaften
         self.stop=stop
 
+
     def run(self):
         global stop, can_messpkt
         stop=self.stop
@@ -178,9 +185,24 @@ class can_werte_anzeigen(threading.Thread):
             # Refresrate
             time.sleep(0.5)
             # Messpunkte lesen
+            # Abfragen der Speicherzelle
+            n=0
+            print(self.redu_botschaften)
+            while n <len(self.redu_botschaften):
+                speicher=can_messpkt[self.redu_botschaften[n][1]]
+                print("Speicher:\t",n,"  ",speicher)
+                if str(speicher)==str(9999) :
+                    print("Es wird keine Botschaft gesendet")
+                    pass
+                else:
+                    # Aufloesen der Daten in der Speicherzelle nach Werten und ID
+                    can_id, length, w1, w2, w3, w4 = struct.unpack(FMT, speicher)
+                    daten=[can_id,w1, w2, w3, w4]
+                    print (daten)
+                n +=1
             #speicher_nr0=can_messpkt[0]
             #print(speicher_nr0)
-            print("can_messpkt:\t",can_messpkt)
+            #print("can_messpkt:\t",can_messpkt)
             # Messpunkte formatieren
             #can_id, length, w1, w2, w3, w4 = struct.unpack(FMT, speicher_nr0)
             #print(can_id, w1, w2, w3, w4)
@@ -188,3 +210,20 @@ class can_werte_anzeigen(threading.Thread):
             # Messpunkte umrechnen in dezimal Zahlen
 
         pass
+class can_anzeigen():
+
+    def start(self,redu_botschaften):
+        # Aufrufe des Threads fuer die Anzeige
+        stop= False
+        thread_anzeigen=can_werte_anzeigen(redu_botschaften, stop)
+        thread_anzeigen.daemon = True
+        thread_anzeigen.start()
+
+'''
+    def stop(self):
+        alle_threads=threading.enumerate()
+        print ("alle Threads:\t",alle_threads)
+        global stop
+        stop= True
+        '''
+        #

@@ -5,49 +5,32 @@ from kivy.app import App
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
-import socket
-import threading
+import time
 
 import canbusstatus   # Status und setzen der Baudrate
 from Anzeigen import Anzeigenelemente
 from CANBusbeschreibung_einlesen import CANBUS_Konfiguration
-#from start_canbus import CANBUS #, CANBUS_Botschaften
-from botschaftsort import CANBUS , can_bot_lesen, stop_can_lesen
+from botschaftsort2 import CANBUS , can_bot_lesen, can_lesen, can_anzeigen
 
 class Bildschirmverwalter(ScreenManager): pass
 class Hauptbildschirm(Screen):
-    def canwerte1(self):
+    def canwerte1_lesen(self):
+        global canbus_konfiguration
+        self.redu_botschaften=CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[0:4])
+        global can0_exist
         if can0_exist == True:
-            global canbus_konfiguration
-            redu_botschaften=CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[0:4])
-            print("Reduzierte Botschaften:\t",redu_botschaften)
-            for i in range(0 ,len(redu_botschaften)):
-                print("Task:\t",i)
-                stop= False
-                #[100, 0, [2, 0.00152587890625, 0.0, 1], [4, 0.00152587890625, 0.0, 4]]
-                #[Botschaft_ID, Speicher_nr , [Startbit, Faktor, Offset, Anzeigennummer]]
-                current=can_bot_lesen(redu_botschaften[i][0],stop)
-                # der Deamon wird aktiviert damit beim Programm
-                # schliessen alle threads beendet werden
-                current.daemon = True
-                current.start()
+            can_lesen().start(self.redu_botschaften)
         return True
+    def canwerte1_anzeigen(self):
+        can_anzeigen().start(self.redu_botschaften)
+
+
     def stop(self):
-        act_threads=threading.active_count()
-        print ("aktive Threads:\t",act_threads)
-        alle_threads=threading.enumerate()
-        print ("alle Threads:\t",alle_threads)
-        stop_can_lesen().stop()
-        print("Stopp gedrueckt")
+        can_lesen().stop()
     pass
 class Bildschirm1_Canwerte(Screen):
     def stop(self):
-        act_threads=threading.active_count()
-        print ("aktive Threads:\t",act_threads)
-        alle_threads=threading.enumerate()
-        print ("alle Threads:\t",alle_threads)
-        stop_can_lesen().stop()
-        print("Stopp gedrueckt")
+        can_lesen().stop()
     pass
 class Bildschirm2_Canwerte(Screen):pass
 class Bildschirm_Einzelwert(Screen):
@@ -110,10 +93,9 @@ class Programm(App):
              Anpassen der Anzeigeelemente mit entspechend
              der Beschreibungsdatei (Name und Einheit)
 
-           4 Start des CANBUSes
+           4 bindet den Socket an can0
 
         '''
-
 
         # 1 Überprüfung und Anzeige auf den Hauptbildschirm
         # ob eine Cankarte vorhaden ist
@@ -126,8 +108,7 @@ class Programm(App):
 
         # DBC Datei einlesen und der Variable canbus_konfiguration zuweisen
         #dateiname = "CANBusbeschreibung.conf"
-        dateiname="canbus.conf"
-        #dateiname="CANBusbeschreibung.conf"
+        dateiname="canbus100.conf"
         '''
         <canbus_konfiguration> besitzt folgende Atributte
             .id_nr  beinhaltet [Id Startbit Faktor Offset Nummer der Anzeige]
@@ -145,24 +126,6 @@ class Programm(App):
         # erstellt eine Liste der Anzeigeelement für die weitere Verwendung
         liste_anzeigen = Anzeigenelemente().liste_erstellen(Bildschirmverwalter)
         Anzeigenelemente().Anzeige_Name_Einheit_aktualisieren(liste_anzeigen, canbus_konfiguration.name_einheit)
-
-        # 4 CANBUS Start mit den ersten 4 Werten
-        if can0_exist == True:
-            #print("Vektor    :\t",canbus_konfiguration.id_nr[0:4])
-            CANBUS().can0_schnittstelle_aktivieren()
-        #    redu_botschaften=CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[0:4])
-        #    print("Reduzierte Botschaften:\t",redu_botschaften)
-        #    for i in range(0 ,len(redu_botschaften)):
-        #        print("Task:\t",i)
-        #        stop= False
-        #        #[100, 0, [2, 0.00152587890625, 0.0, 1], [4, 0.00152587890625, 0.0, 4]]
-        #        #[Botschaft_ID, Speicher_nr , [Startbit, Faktor, Offset, Anzeigennummer]]
-        #        current=can_bot_lesen(redu_botschaften[i][0],stop)
-        #        # der Deamon wird aktiviert damit beim Programm
-        #        # schliessen alle threads beendet werden
-        #        current.daemon = True
-        #        current.start()
-
 
         # Hintergrundfarbe ist Weis
         Window.clearcolor = (0.1,0.3,0.8,1)

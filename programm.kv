@@ -77,7 +77,8 @@
             Button:
                 text: "Canwerte anzeigen"
                 on_release:
-                    root.canwerte1()
+                    root.canwerte1_lesen()
+                    root.canwerte1_anzeigen()
                     root.manager.transition = NoTransition()
                     app.root.current="bs1cw"
             Button:
