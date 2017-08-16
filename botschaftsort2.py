@@ -125,10 +125,6 @@ class can_bot_lesen(threading.Thread):
         stop=self.stop
         while (not stop):
             can_messpkt[self.speicher_nr]=can_interface.recv(16)
-            #print("Messpunkt:\t",self.id,can_messpkt[self.speicher_nr])
-            #print("Messpunkt:\t",self.id,can_messpkt[self.speicher_nr])
-
-
 
 class can_lesen():
 
@@ -140,16 +136,14 @@ class can_lesen():
         can_messpkt=[]
         for x in range (4):
             can_messpkt.append(9999)
-
-
         self.redu_botschaften=redu_botschaften
-        print (redu_botschaften)
         stop= False
         #'''
         for i in range(0 ,len(self.redu_botschaften)):
             #stop= False
             #[100, 0, [2, 0.00152587890625, 0.0, 1], [4, 0.00152587890625, 0.0, 4]]
             #[Botschaft_ID, Speicher_nr , [Startbit, Faktor, Offset, Anzeigennummer]]
+
             botschschafts_id=self.redu_botschaften[i][0]
             speicher_nr=self.redu_botschaften[i][1]
             current=can_bot_lesen(botschschafts_id, stop , speicher_nr)
@@ -157,13 +151,20 @@ class can_lesen():
             # schliessen alle threads beendet werden
             current.daemon = True
             current.start()
+
         #'''
     def stop(self):
-        alle_threads=threading.enumerate()
-        print ("alle Threads:\t",alle_threads)
+        #alle_threads=threading.enumerate()
+        #print ("alle Threads:\t",alle_threads)
+
         global stop
         stop= True
-
+        # stoppt alle Threads wenn auf die Gesamtanzeige zurueck gegangen wird
+        # es geht erst weiter wenn die threads gestoppt sind
+        aktiv_threads=threading.active_count()
+        while aktiv_threads >4:
+            aktiv_threads=threading.active_count()
+        return True
 class can_werte_anzeigen(threading.Thread):
     '''
     Quelle:
@@ -183,47 +184,61 @@ class can_werte_anzeigen(threading.Thread):
         FMT = "<IB3x2s2s2s2s"
         while (not stop):
             # Refresrate
-            time.sleep(0.5)
+            time.sleep(0.1)
             # Messpunkte lesen
             # Abfragen der Speicherzelle
             n=0
-            print(self.redu_botschaften)
+
             while n <len(self.redu_botschaften):
                 speicher=can_messpkt[self.redu_botschaften[n][1]]
-                print("Speicher:\t",n,"  ",speicher)
                 if str(speicher)==str(9999) :
-                    print("Es wird keine Botschaft gesendet")
+                    #print("Es wird keine Botschaft gesendet")
                     pass
                 else:
                     # Aufloesen der Daten in der Speicherzelle nach Werten und ID
                     can_id, length, w1, w2, w3, w4 = struct.unpack(FMT, speicher)
                     daten=[can_id,w1, w2, w3, w4]
-                    print (daten)
+
+
+                    # Anzahl der Werte in der Botschaft
+                    anzahl=len(self.redu_botschaften[n])-1
+                    #print("Redu:\t",self.redu_botschaften[n])
+                    #print("Anzahl:\t",anzahl)
+                    # i=2 weil ID und die Speicherzelle abgezogen werden
+                    i=2
+                    # Umrechnen der CANwerte in eine Dezimalzahl fuer die Anzeige
+                    while i <= anzahl:
+                        # hex_wert=startbit
+                        hex_wert=self.redu_botschaften[n][i][0]
+                        faktor=self.redu_botschaften[n][i][1]
+                        offset=self.redu_botschaften[n][i][2]
+                        anzeige_nr=self.redu_botschaften[n][i][3]
+                        var=str(binascii.hexlify(daten[hex_wert]), 'ascii')
+
+                        # Numerischen Wert ermittel aus den Integer Wert + Faktor + Offset
+                        wert= int(var,16)*faktor+offset
+                        # kuerzen auf 2 nachkommastellen
+                        wert_kurz='{:.2f}'.format(wert)
+
+                        #a = eval("root.ids.s" + str(seite) + ".ids.a" + str(i))
+                        if self.fenster_id=="s1":
+                            a = eval("self.Bildschirmverwalter.ids."+str(self.fenster_id)+".ids.a" + str(anzeige_nr))
+                        if self.fenster_id=="s2":
+                            a = eval("self.Bildschirmverwalter.ids."+str(self.fenster_id)+".ids.a" + str(anzeige_nr-4))
+                        if self.fenster_id=="s100":
+                            a = eval("self.Bildschirmverwalter.ids."+str(self.fenster_id) )
+                        a.ids.w1.text=wert_kurz
+
+                        i +=1
                 n +=1
-            #speicher_nr0=can_messpkt[0]
-            #print(speicher_nr0)
-            #print("can_messpkt:\t",can_messpkt)
-            # Messpunkte formatieren
-            #can_id, length, w1, w2, w3, w4 = struct.unpack(FMT, speicher_nr0)
-            #print(can_id, w1, w2, w3, w4)
-
-            # Messpunkte umrechnen in dezimal Zahlen
-
         pass
 class can_anzeigen():
 
-    def start(self,redu_botschaften):
+    def start(self,redu_botschaften,Bildschirmverwalter,fenster_id):
         # Aufrufe des Threads fuer die Anzeige
         stop= False
         thread_anzeigen=can_werte_anzeigen(redu_botschaften, stop)
         thread_anzeigen.daemon = True
         thread_anzeigen.start()
-
-'''
-    def stop(self):
-        alle_threads=threading.enumerate()
-        print ("alle Threads:\t",alle_threads)
-        global stop
-        stop= True
-        '''
-        #
+        thread_anzeigen.Bildschirmverwalter=Bildschirmverwalter
+        thread_anzeigen.fenster_id=fenster_id

@@ -5,7 +5,6 @@ from kivy.app import App
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
-import time
 
 import canbusstatus   # Status und setzen der Baudrate
 from Anzeigen import Anzeigenelemente
@@ -22,25 +21,77 @@ class Hauptbildschirm(Screen):
             can_lesen().start(self.redu_botschaften)
         return True
     def canwerte1_anzeigen(self):
-        can_anzeigen().start(self.redu_botschaften)
-
+        global Bildschirmverwalter
+        fenster_id="s1"
+        can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
 
     def stop(self):
         can_lesen().stop()
+
     pass
 class Bildschirm1_Canwerte(Screen):
+    def canwerte2_lesen(self):
+        global canbus_konfiguration
+        self.redu_botschaften=CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[4:8])
+        global can0_exist
+        if can0_exist == True:
+            can_lesen().start(self.redu_botschaften)
+        return True
+    def canwerte2_anzeigen(self):
+        global Bildschirmverwalter
+        fenster_id="s2"
+        can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
+
     def stop(self):
         can_lesen().stop()
     pass
-class Bildschirm2_Canwerte(Screen):pass
+class Bildschirm2_Canwerte(Screen):
+    # fuer den Knopf zurueck
+    def canwerte1_lesen(self):
+        global canbus_konfiguration
+        self.redu_botschaften=CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[0:4])
+        global can0_exist
+        if can0_exist == True:
+            can_lesen().start(self.redu_botschaften)
+        return True
+    def canwerte1_anzeigen(self):
+        global Bildschirmverwalter
+        fenster_id="s1"
+        can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
+    pass
+
+    def stop(self):
+        can_lesen().stop()
+    pass
+
 class Bildschirm_Einzelwert(Screen):
     def on_touch_down(self, touch):
-        global Bildschirmverwalter
+        global Bildschirmverwalter, can0_exist, canbus_konfiguration
         obj_Einzelwert=Bildschirmverwalter.ids.s100
         if self.collide_point( *touch.pos ):
             # Umschalten zur Einwertanzeige
             Bildschirmverwalter.transition = NoTransition()
             Bildschirmverwalter.current = obj_Einzelwert.altesFenster
+
+            # stoppt alle Threads wenn auf die Gesamtanzeige zurueck gegangen wird
+            can_lesen().stop()
+
+            # Start der Threads fuer die Gesamtanzeige
+            if can0_exist == True:
+
+                if obj_Einzelwert.altesFenster=="bs1cw":
+                    redu_botschaften=CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[0:4])
+                    can_lesen().start(redu_botschaften)
+                    # Start Anzeige
+                    fenster_id="s1"
+                    can_anzeigen().start(redu_botschaften,Bildschirmverwalter,fenster_id)
+
+                if obj_Einzelwert.altesFenster=="bs2cw":
+                    redu_botschaften=CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[4:8])
+                    can_lesen().start(redu_botschaften)
+                    # Start Anzeige
+                    fenster_id="s2"
+                    can_anzeigen().start(redu_botschaften,Bildschirmverwalter,fenster_id)
             return True
         else:
             #print("Outsside")
@@ -53,9 +104,7 @@ class CAN_Wert_Anzeige(BoxLayout):
         global Bildschirmverwalter
         obj_Einzelwert=Bildschirmverwalter.ids.s100
         if self.collide_point( *touch.pos ):
-            # root = objekt Bildverwalter oberste Ebene
-            root=self.parent.parent.parent.parent
-            root.letzter_Bildschirm_Name= self.parent.parent.parent.name
+
             # Auslesen des Textelementes der Anzeige auf die geklickt wurde
             # Zuweisung des Textlabel für das Textlabel der Einzelbildanzeige
             obj_Einzelwert.ids.n1.text =self.ids.n1.text
@@ -66,6 +115,26 @@ class CAN_Wert_Anzeige(BoxLayout):
             # Umschalten zur Einwertanzeige
             Bildschirmverwalter.transition = NoTransition()
             Bildschirmverwalter.current = 'bsew'
+
+            # Stop aller Threads und Start des Threads für den angezeigten Wert
+            can_lesen().stop()
+
+            # formatieren fuer die Uebergabe
+            global canbus_konfiguration
+            if obj_Einzelwert.altesFenster=="bs1cw":
+                a=canbus_konfiguration.id_nr[int(self.ref_nr)]
+            if obj_Einzelwert.altesFenster=="bs2cw":
+                a=canbus_konfiguration.id_nr[int(self.ref_nr)+4]
+
+            redu_botschaften_kurz=[[a[0],0,a[1:5]]]
+
+            global can0_exist
+            if can0_exist == True:
+                can_lesen().start(redu_botschaften_kurz)
+            # Anzeige aktualisieren
+            fenster_id="s100"
+            can_anzeigen().start(redu_botschaften_kurz,Bildschirmverwalter,fenster_id)
+
             return True
         else:
             #print("Outsside")

@@ -146,12 +146,16 @@
             spacing: 1
             CAN_Wert_Anzeige:
                 id: a1
+                ref_nr: "0"
             CAN_Wert_Anzeige:
                 id: a2
+                ref_nr: "1"
             CAN_Wert_Anzeige:
                 id: a3
+                ref_nr: "2"
             CAN_Wert_Anzeige:
                 id: a4
+                ref_nr: "3"
         BoxLayout:
             size_hint: 1,0.2
             Button:
@@ -163,6 +167,9 @@
             Button:
                 text: 'Weitere Canwerte'
                 on_release:
+                    root.stop()
+                    root.canwerte2_lesen()
+                    root.canwerte2_anzeigen()
                     root.manager.transition = NoTransition()
                     app.root.current="bs2cw"
 
@@ -181,24 +188,32 @@
             spacing: 1
             CAN_Wert_Anzeige:
                 id: a1
+                ref_nr: "0"
             CAN_Wert_Anzeige:
                 id: a2
+                ref_nr: "1"
             CAN_Wert_Anzeige:
                 id: a3
+                ref_nr: "2"
             CAN_Wert_Anzeige:
                 id: a4
+                ref_nr: "3"
         BoxLayout:
             size_hint: 1,0.2
             Button:
                 text: 'zurück'
                 on_release:
+                    root.stop()
+                    root.canwerte1_lesen()
+                    root.canwerte1_anzeigen()
                     root.manager.transition = NoTransition()
                     app.root.current="bs1cw"
             Button:
                 text: 'Hauptbilschirm'
                 on_release:
+                    root.stop()
                     root.manager.transition = NoTransition()
-                    app.root.current="bsew"
+                    app.root.current="hbs"
 
 ###### Bildschirm für Einzelwert anzeige ######
 
