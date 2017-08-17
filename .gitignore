@@ -1,4 +1,3 @@
 .idea/
 __pycache__/
-start_canbus.py
 test_*.py
