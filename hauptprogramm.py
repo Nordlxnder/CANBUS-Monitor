@@ -7,9 +7,9 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 
 import canbusstatus   # Status und setzen der Baudrate
-from Anzeigen import Anzeigenelemente
 from CANBusbeschreibung_einlesen import CANBUS_Konfiguration
-from botschaftsort2 import CANBUS , can_lesen, can_anzeigen, Stop_CAN_Threads
+from can_lesen_anzeigen import Anzeigenelemente, CANBUS
+from can_lesen_anzeigen import Can_lesen, Can_anzeigen, Stop_CAN_Threads
 
 class Bildschirmverwalter(ScreenManager): pass
 class Hauptbildschirm(Screen):
@@ -24,14 +24,12 @@ class Hauptbildschirm(Screen):
         self.redu_botschaften=CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[0:4])
         global can0_exist
         if can0_exist == True:
-            can_lesen().start(self.redu_botschaften)
+            Can_lesen().start(self.redu_botschaften)
         return True
     def canwerte1_anzeigen(self):
         global Bildschirmverwalter
         fenster_id="s1"
-        can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
-
-
+        Can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
 
     pass
 class Bildschirm1_Canwerte(Screen):
@@ -40,12 +38,12 @@ class Bildschirm1_Canwerte(Screen):
         self.redu_botschaften=CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[4:8])
         global can0_exist
         if can0_exist == True:
-            can_lesen().start(self.redu_botschaften)
+            Can_lesen().start(self.redu_botschaften)
         return True
     def canwerte2_anzeigen(self):
         global Bildschirmverwalter
         fenster_id="s2"
-        can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
+        Can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
 
     def stop(self):
         Stop_CAN_Threads().stop()
@@ -57,12 +55,12 @@ class Bildschirm2_Canwerte(Screen):
         self.redu_botschaften=CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[0:4])
         global can0_exist
         if can0_exist == True:
-            can_lesen().start(self.redu_botschaften)
+            Can_lesen().start(self.redu_botschaften)
         return True
     def canwerte1_anzeigen(self):
         global Bildschirmverwalter
         fenster_id="s1"
-        can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
+        Can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
     pass
 
     def stop(self):
@@ -86,17 +84,17 @@ class Bildschirm_Einzelwert(Screen):
 
                 if obj_Einzelwert.altesFenster=="bs1cw":
                     redu_botschaften=CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[0:4])
-                    can_lesen().start(redu_botschaften)
+                    Can_lesen().start(redu_botschaften)
                     # Start Anzeige
                     fenster_id="s1"
-                    can_anzeigen().start(redu_botschaften,Bildschirmverwalter,fenster_id)
+                    Can_anzeigen().start(redu_botschaften,Bildschirmverwalter,fenster_id)
 
                 if obj_Einzelwert.altesFenster=="bs2cw":
                     redu_botschaften=CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[4:8])
-                    can_lesen().start(redu_botschaften)
+                    Can_lesen().start(redu_botschaften)
                     # Start Anzeige
                     fenster_id="s2"
-                    can_anzeigen().start(redu_botschaften,Bildschirmverwalter,fenster_id)
+                    Can_anzeigen().start(redu_botschaften,Bildschirmverwalter,fenster_id)
             return True
         else:
             #print("Outsside")
@@ -135,10 +133,10 @@ class CAN_Wert_Anzeige(BoxLayout):
 
             global can0_exist
             if can0_exist == True:
-                can_lesen().start(redu_botschaften_kurz)
+                Can_lesen().start(redu_botschaften_kurz)
             # Anzeige aktualisieren
             fenster_id="s100"
-            can_anzeigen().start(redu_botschaften_kurz,Bildschirmverwalter,fenster_id)
+            Can_anzeigen().start(redu_botschaften_kurz,Bildschirmverwalter,fenster_id)
 
         else:
             #print("Outsside")
@@ -180,8 +178,8 @@ class Programm(App):
         can0_exist = canbusstatus.can0_check(label_hauptbildschirm)
 
         # DBC Datei einlesen und der Variable canbus_konfiguration zuweisen
-        #dateiname = "CANBusbeschreibung.conf"
-        dateiname="canbus100.conf"
+        dateiname = "CANBusbeschreibung.conf"
+        #dateiname="canbus.conf"
         '''
         <canbus_konfiguration> besitzt folgende Atributte
             .id_nr  beinhaltet [Id Startbit Faktor Offset Nummer der Anzeige]

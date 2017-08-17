@@ -32,3 +32,20 @@ Hardware:
 	Banana Pi mit Can-Erweiterung
 	Touch Display 800x480 (andere sollten auch möglich sein;)
 
+
+Beispiel: 
+	canbus.log passt zur canbus.conf
+	
+	mit can-utils kann die Logdatei auf einem 2ten Raspi 
+	abgespielt werden zum Testen
+	
+	Canschnittstelle aktivieren mit:
+		sudo ip link set can0 type can bitrate 500000
+		sudo ifconfig can0 up
+		sudo modprobe can-raw
+		ip -details link show can0
+	
+	Im Verzeichnis der Logdatei dann
+	
+        	canplayer -l i -I canbus.log	
+	
