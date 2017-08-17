@@ -69,7 +69,7 @@ class CANBUS_Konfiguration():
 
         return (self)
 
-    def uebersicht_can_botschaften(self,Bildschirmverwalter,canbus_konfiguration):
+    def uebersicht_can_botschaften(self,Bildschirmverwalter,canbus_konfiguration,dateiname):
         '''Übersicht im Konfigurationsfenster der einzelnen CAN Botschaften'''
         # Überschrift Botschaft Startbit Faktor Offset
         Bildschirmverwalter.ids.s101.ids.a1.text = str("                    Botschaft   Startbit   Faktor      Offset")
@@ -83,3 +83,4 @@ class CANBUS_Konfiguration():
             k_bot.text = "Anzeige  {}".format(
                 k) + "     " + bot + "              " + sb + "       " + fkt + "      " + ofs
             k += 1
+        Bildschirmverwalter.ids.s101.ids.a10.text = "Beschreibungsdatei:     "+str(dateiname)

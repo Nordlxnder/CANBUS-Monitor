@@ -19,17 +19,6 @@ import time
 
 class CANBUS():
 
-    def can0_schnittstelle_aktivieren(self):
-        '''
-            Bindet den Socket an die can0 Schnittstelle
-            Das Can Interface wird global gesetzt damit
-            es spaeter beim aktivieren  der threads fuer
-            die einzelnen Botschaften genutzt werden kann
-        '''
-
-
-
-
     def botschaften_sortieren(self,canbus_konfiguration):
         '''
             Funtion:
@@ -103,6 +92,7 @@ class can_bot_lesen(threading.Thread):
 
     def __init__ (self,id,stop, speicher_nr):
         threading.Thread.__init__(self,name=id)
+        #threading.Thread.__init__(self,name="test")
         self.id = id
         self.stop=stop
         self.speicher_nr=speicher_nr
@@ -138,7 +128,7 @@ class can_lesen():
             can_messpkt.append(9999)
         self.redu_botschaften=redu_botschaften
         stop= False
-        #'''
+
         for i in range(0 ,len(self.redu_botschaften)):
             #stop= False
             #[100, 0, [2, 0.00152587890625, 0.0, 1], [4, 0.00152587890625, 0.0, 4]]
@@ -152,19 +142,7 @@ class can_lesen():
             current.daemon = True
             current.start()
 
-        #'''
-    def stop(self):
-        #alle_threads=threading.enumerate()
-        #print ("alle Threads:\t",alle_threads)
 
-        global stop
-        stop= True
-        # stoppt alle Threads wenn auf die Gesamtanzeige zurueck gegangen wird
-        # es geht erst weiter wenn die threads gestoppt sind
-        aktiv_threads=threading.active_count()
-        while aktiv_threads >4:
-            aktiv_threads=threading.active_count()
-        return True
 class can_werte_anzeigen(threading.Thread):
     '''
     Quelle:
@@ -174,6 +152,7 @@ class can_werte_anzeigen(threading.Thread):
 
     def __init__ (self,redu_botschaften,stop):
         threading.Thread.__init__(self,name="Anzeige")
+        #threading.Thread.__init__(self,name="test")
         self.redu_botschaften = redu_botschaften
         self.stop=stop
 
@@ -198,7 +177,6 @@ class can_werte_anzeigen(threading.Thread):
                     # Aufloesen der Daten in der Speicherzelle nach Werten und ID
                     can_id, length, w1, w2, w3, w4 = struct.unpack(FMT, speicher)
                     daten=[can_id,w1, w2, w3, w4]
-
 
                     # Anzahl der Werte in der Botschaft
                     anzahl=len(self.redu_botschaften[n])-1
@@ -242,3 +220,19 @@ class can_anzeigen():
         thread_anzeigen.start()
         thread_anzeigen.Bildschirmverwalter=Bildschirmverwalter
         thread_anzeigen.fenster_id=fenster_id
+
+class Stop_CAN_Threads():
+    def stop(self):
+        #alle_threads=threading.enumerate()
+        #print ("alle Threads:\t",alle_threads)
+
+        global stop
+        stop= True
+        # stoppt alle Threads wenn auf die Gesamtanzeige zurueck gegangen wird
+        # es geht erst weiter wenn die threads gestoppt sind
+        #aktiv_threads=threading.active_count()
+        #print("Threads vor dem Stop:\t",threading.enumerate())
+        while aktiv_threads >7:
+            aktiv_threads=threading.active_count()
+            #print(aktiv_threads)
+        #print("Threads nach dem Stopp:\t",threading.enumerate())

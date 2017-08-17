@@ -9,11 +9,17 @@ from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 import canbusstatus   # Status und setzen der Baudrate
 from Anzeigen import Anzeigenelemente
 from CANBusbeschreibung_einlesen import CANBUS_Konfiguration
-from botschaftsort2 import CANBUS , can_bot_lesen, can_lesen, can_anzeigen
+from botschaftsort2 import CANBUS , can_lesen, can_anzeigen, Stop_CAN_Threads
 
 class Bildschirmverwalter(ScreenManager): pass
 class Hauptbildschirm(Screen):
+
+    def stop(self):
+        Stop_CAN_Threads().stop()
+        return True
+
     def canwerte1_lesen(self):
+
         global canbus_konfiguration
         self.redu_botschaften=CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[0:4])
         global can0_exist
@@ -25,8 +31,7 @@ class Hauptbildschirm(Screen):
         fenster_id="s1"
         can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
 
-    def stop(self):
-        can_lesen().stop()
+
 
     pass
 class Bildschirm1_Canwerte(Screen):
@@ -43,7 +48,7 @@ class Bildschirm1_Canwerte(Screen):
         can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
 
     def stop(self):
-        can_lesen().stop()
+        Stop_CAN_Threads().stop()
     pass
 class Bildschirm2_Canwerte(Screen):
     # fuer den Knopf zurueck
@@ -61,7 +66,7 @@ class Bildschirm2_Canwerte(Screen):
     pass
 
     def stop(self):
-        can_lesen().stop()
+        Stop_CAN_Threads().stop()
     pass
 
 class Bildschirm_Einzelwert(Screen):
@@ -74,7 +79,7 @@ class Bildschirm_Einzelwert(Screen):
             Bildschirmverwalter.current = obj_Einzelwert.altesFenster
 
             # stoppt alle Threads wenn auf die Gesamtanzeige zurueck gegangen wird
-            can_lesen().stop()
+            Stop_CAN_Threads().stop()
 
             # Start der Threads fuer die Gesamtanzeige
             if can0_exist == True:
@@ -117,7 +122,7 @@ class CAN_Wert_Anzeige(BoxLayout):
             Bildschirmverwalter.current = 'bsew'
 
             # Stop aller Threads und Start des Threads für den angezeigten Wert
-            can_lesen().stop()
+            Stop_CAN_Threads().stop()
 
             # formatieren fuer die Uebergabe
             global canbus_konfiguration
@@ -135,7 +140,6 @@ class CAN_Wert_Anzeige(BoxLayout):
             fenster_id="s100"
             can_anzeigen().start(redu_botschaften_kurz,Bildschirmverwalter,fenster_id)
 
-            return True
         else:
             #print("Outsside")
             super(CAN_Wert_Anzeige, self).on_touch_down(touch)
@@ -189,15 +193,19 @@ class Programm(App):
         canbus_konfiguration = CANBUS_Konfiguration().Datei_einlesen(dateiname)
 
         # 2 Anzeige einer Übersicht der CANBUS Botschaften im Konfigurationsfenster
-        CANBUS_Konfiguration().uebersicht_can_botschaften(Bildschirmverwalter,canbus_konfiguration)
+        CANBUS_Konfiguration().uebersicht_can_botschaften(Bildschirmverwalter,
+        canbus_konfiguration,dateiname)
 
         # 3 Aktualisierung der Anzeigen von Name und Einheit
         # erstellt eine Liste der Anzeigeelement für die weitere Verwendung
         liste_anzeigen = Anzeigenelemente().liste_erstellen(Bildschirmverwalter)
         Anzeigenelemente().Anzeige_Name_Einheit_aktualisieren(liste_anzeigen, canbus_konfiguration.name_einheit)
-
         # Hintergrundfarbe ist Weis
         Window.clearcolor = (0.1,0.3,0.8,1)
+        # groesse des Fenters festlegen
+        #Window.size = (800, 480)
+        #Window.fullscreen = True
+
 
 if __name__=="__main__":
     Programm().run()

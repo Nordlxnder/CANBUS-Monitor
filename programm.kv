@@ -32,6 +32,7 @@
     color: 1,1,1,1
     text_size: self.size
     halign: 'left'
+    #size_hint: 1,0.1
     #valign: 'middle'
 
 
@@ -72,7 +73,9 @@
             Button:
                 text: "Konfiguration"
                 on_release:
-                    root.manager.transition = NoTransition()
+                    root.manager.transition = SlideTransition()
+                    root.manager.transition.duration = 0.3
+                    root.manager.transition.direction = 'down'
                     app.root.current="bsk"
             Button:
                 text: "Canwerte anzeigen"
@@ -120,12 +123,17 @@
             Konf:
                 id: a9
                 text: " "
+            Konf:
+                id: a10
+                text: " "
         BoxLayout:
             size_hint: 1,0.2
             Button:
                 text: 'zurück'
                 on_release:
-                    root.manager.transition = NoTransition()
+                    root.manager.transition = SlideTransition()
+                    root.manager.transition.duration = 0.6
+                    root.manager.transition.direction = 'up'
                     app.root.current="hbs"
             Button:
                 text: 'DBC Datei laden'
