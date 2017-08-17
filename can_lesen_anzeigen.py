@@ -240,11 +240,15 @@ class Can_lesen():
 
             botschschafts_id=self.redu_botschaften[i][0]
             speicher_nr=self.redu_botschaften[i][1]
-            current=Can_bot_lesen(botschschafts_id, stop , speicher_nr)
-            # der Deamon wird aktiviert damit beim Programm
-            # schliessen alle threads beendet werden
-            current.daemon = True
-            current.start()
+            try:
+                current=Can_bot_lesen(botschschafts_id, stop , speicher_nr)
+                # der Deamon wird aktiviert damit beim Programm
+                # schliessen alle threads beendet werden
+                current.daemon = True
+                current.start()
+            except current.Timeout as err:
+                logger.error({"message Meine Meldung": err.message})
+
 class Can_bot_lesen(threading.Thread):
     '''
     Quelle:
@@ -266,6 +270,9 @@ class Can_bot_lesen(threading.Thread):
     def run(self):
 
         can_interface = socket.socket(socket.AF_CAN, socket.SOCK_RAW, socket.CAN_RAW)
+
+        # damit blockiert das Programm nicht wenn keine Datengesendet werden.
+        can_interface.settimeout(2)
         # Name der Schnittstelle
         interface = "can0"
         can_interface.bind((interface,))
@@ -280,8 +287,13 @@ class Can_bot_lesen(threading.Thread):
         global stop, can_messpkt
         stop=self.stop
         while (not stop):
-            can_messpkt[self.speicher_nr]=can_interface.recv(16)
-
+            try:
+                can_messpkt[self.speicher_nr]=can_interface.recv(16)
+            #except Timeout as err:
+            except OSError as err:
+                print("OS error: {0}".format(err))
+                break
+                #logger.error({"message Meine Meldung2": err.message})
 
 
 class Stop_CAN_Threads():
