@@ -139,8 +139,41 @@
                     root.manager.transition.direction = 'up'
                     app.root.current="hbs"
             Button:
-                text: 'DBC Datei laden'
+                text: 'Baudrate setzen'
+                on_release:
+                    root.manager.transition = SlideTransition()
+                    root.manager.transition.duration = 0.6
+                    root.manager.transition.direction = 'left'
+                    app.root.current="bsb"
 
+###### Baudrate Baudrate_aendern ######
+<Baudrate_aendern>:
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            id: l1
+            text: "Baudrate setzen"
+        Button:
+            text: '1000 kBaud'
+            on_release:
+                root.baudrate('1000 kHz')
+        Button:
+            text: '500 kBaud'
+            on_release:
+                root.baudrate('500 kHz')
+        Button:
+            text: '250 kBaud'
+            on_release:
+                root.baudrate('250 kHz')
+
+        #size_hint: 1,0.2
+        Button:
+            text: 'zurück'
+            on_release:
+                root.manager.transition = SlideTransition()
+                root.manager.transition.duration = 0.6
+                root.manager.transition.direction = 'up'
+                app.root.current="hbs"
 
 ###### Bildschirm1 Canwerte ######
 
@@ -271,3 +304,6 @@ Bildschirmverwalter:
     Bildschirm_Konfiguration:
         id: s101
         name: 'bsk'
+    Baudrate_aendern:
+        id: s102
+        name: 'bsb'

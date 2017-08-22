@@ -102,6 +102,17 @@ class Bildschirm_Einzelwert(Screen):
             pass
     pass
 class Bildschirm_Konfiguration(Screen):pass
+class Baudrate_aendern(Screen):
+    def baudrate(self,baudrate):
+        global Bildschirmverwalter
+        canbusstatus.can_set_baudrate(baudrate)
+        status=canbusstatus.status_ausgabe(Bildschirmverwalter)
+
+        #Bildschirmverwalter.ids.s0.ids.l1.text="\nDie CAN Karte ist " \
+        #+ status[1] + "\nBaudrate: " + status[0]
+        #self.ids.l1.text="Baudrate setzen"  + "\nBaudrate: " + status[0]
+        #print ("Status:\t",status)
+    pass
 class CAN_Wert_Anzeige(BoxLayout):
     def on_touch_down(self, touch):
         global Bildschirmverwalter
@@ -174,8 +185,9 @@ class Programm(App):
         Bildschirmverwalter = self.root
 
         global can0_exist
-        label_hauptbildschirm = Bildschirmverwalter.ids.s0.ids.l1
-        can0_exist = canbusstatus.can0_check(label_hauptbildschirm)
+        can0_exist = canbusstatus.can0_check()
+        # Anzeige des Statuses im Haupfenste
+        canbusstatus.status_ausgabe(Bildschirmverwalter)
 
         # DBC Datei einlesen und der Variable canbus_konfiguration zuweisen
         dateiname = "CANBusbeschreibung.conf"

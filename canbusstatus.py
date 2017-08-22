@@ -4,22 +4,20 @@ import subprocess
 '''
     Funktionen:
 
-    can0_check pfüt ob einen CAN Karte vorhanden ist und gibt die Meldung im Hauptfensteraus
+    can0_check prüft ob einen CAN Karte vorhanden ist und gibt die Meldung im Hauptfensteraus
 
 
 
 '''
 
-def can0_check(label_hauptbildschrim):
+def can0_check():
     ''' prüft ob can0 auf dem PC existiert'''
 
     try:
         ausgabe = subprocess.check_output('ip -details link show can0', shell=True)
+        subprocess.call("sudo ip link set dev can0 down", shell=True)
         subprocess.call("sudo ip link set can0 type can bitrate 500000", shell=True)
         subprocess.call("sudo ip link set dev can0 up", shell=True)
-        status = can_read_baudrate()
-        #label_hauptbildschrim.text="Eine Cankarte ist vorhanden"
-        label_hauptbildschrim.text="\nDie CAN Karte ist " + status[1] + "\nBaudrate: " + status[0]
         return True
     except:
         label_hauptbildschrim.text = "\nEs gibt keine CAN Karte can0 auf dem PC"
@@ -45,7 +43,8 @@ def can_read_baudrate():
         else:
             bis = 3
         baudrate = str(baud[0:bis]) + " kHz"
-        status = "aktiv"
+        status = a[0].split()[21].split('-')[1]
+
     else:
         # Die CAN Karte ist noch nicht konfiguriert
         baudrate = "0 kHz"
@@ -66,6 +65,19 @@ def can_set_baudrate(baudrate):
     if baudrate == "250 kHz":
         subprocess.call("sudo ip link set can0 type can bitrate 250000", shell=True)
     subprocess.call("sudo ip link set dev can0 up", shell=True)
+
     pass
 
+def status_ausgabe(Bildschirmverwalter):
+    status = can_read_baudrate()
+    #label_hauptbildschrim.text="Eine Cankarte ist vorhanden"
+    if status[1] == "PASSIVE":
+        # Hauptfenster
+        Bildschirmverwalter.ids.s0.ids.l1.text="\nDie CAN Karte ist " + status[1] + "\nbitte Abschlusswiderstaende prüfen"
+        # Fenster Baudrate setzen
+        Bildschirmverwalter.ids.s102.ids.l1.text="\nDie CAN Karte ist " + status[1] + "\nbitte Abschlusswiderstaende prüfen"
+    else:
+        Bildschirmverwalter.ids.s0.ids.l1.text="\nDie CAN Karte ist " + status[1] + "\nBaudrate: " + status[0]
+        Bildschirmverwalter.ids.s102.ids.l1.text="\nDie CAN Karte ist " + status[1] + "\nBaudrate: " + status[0]
+    pass
 
