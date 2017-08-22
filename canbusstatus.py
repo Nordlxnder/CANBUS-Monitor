@@ -75,7 +75,9 @@ def status_ausgabe(Bildschirmverwalter):
         # Hauptfenster
         Bildschirmverwalter.ids.s0.ids.l1.text="\nDie CAN Karte ist " + status[1] + "\nbitte Abschlusswiderstaende prüfen"
         # Fenster Baudrate setzen
+        #Bildschirmverwalter.ids.s102.ids.l1.text="\nDie CAN Karte ist " + status[1] + "\nbitte Abschlusswiderstaende prüfen"
         Bildschirmverwalter.ids.s102.ids.l1.text="\nDie CAN Karte ist " + status[1] + "\nbitte Abschlusswiderstaende prüfen"
+        #Bildschirmverwalter.ids.s102.ids.l1 = text(text="\nDie CAN Karte ist " + status[1] + "\nbitte Abschlusswiderstaende prüfen", color=[105, 106, 188, 1])
     else:
         Bildschirmverwalter.ids.s0.ids.l1.text="\nDie CAN Karte ist " + status[1] + "\nBaudrate: " + status[0]
         Bildschirmverwalter.ids.s102.ids.l1.text="\nDie CAN Karte ist " + status[1] + "\nBaudrate: " + status[0]

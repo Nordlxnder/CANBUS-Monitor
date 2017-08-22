@@ -107,11 +107,6 @@ class Baudrate_aendern(Screen):
         global Bildschirmverwalter
         canbusstatus.can_set_baudrate(baudrate)
         status=canbusstatus.status_ausgabe(Bildschirmverwalter)
-
-        #Bildschirmverwalter.ids.s0.ids.l1.text="\nDie CAN Karte ist " \
-        #+ status[1] + "\nBaudrate: " + status[0]
-        #self.ids.l1.text="Baudrate setzen"  + "\nBaudrate: " + status[0]
-        #print ("Status:\t",status)
     pass
 class CAN_Wert_Anzeige(BoxLayout):
     def on_touch_down(self, touch):
