@@ -72,14 +72,20 @@ def status_ausgabe(Bildschirmverwalter):
     status = can_read_baudrate()
     #label_hauptbildschrim.text="Eine Cankarte ist vorhanden"
     if status[1] == "PASSIVE":
+        fehlermeldung="\nDie CAN Karte ist " + status[1] + \
+        "\nbitte Abschlusswiderstaende prüfen!!!"
+
         # Hauptfenster
-        Bildschirmverwalter.ids.s0.ids.l1.text="\nDie CAN Karte ist " + status[1] + "\nbitte Abschlusswiderstaende prüfen"
+        Bildschirmverwalter.ids.s0.ids.l1.text=fehlermeldung
         # Fenster Baudrate setzen
-        #Bildschirmverwalter.ids.s102.ids.l1.text="\nDie CAN Karte ist " + status[1] + "\nbitte Abschlusswiderstaende prüfen"
-        Bildschirmverwalter.ids.s102.ids.l1.text="\nDie CAN Karte ist " + status[1] + "\nbitte Abschlusswiderstaende prüfen"
-        #Bildschirmverwalter.ids.s102.ids.l1 = text(text="\nDie CAN Karte ist " + status[1] + "\nbitte Abschlusswiderstaende prüfen", color=[105, 106, 188, 1])
+        Bildschirmverwalter.ids.s102.ids.l1.text=fehlermeldung
+        Bildschirmverwalter.ids.s102.ids.l1.color= 1,0,1,1     # Farbe
+        Bildschirmverwalter.ids.s102.ids.l1.font_size= 30      # Schriftgroesse
     else:
-        Bildschirmverwalter.ids.s0.ids.l1.text="\nDie CAN Karte ist " + status[1] + "\nBaudrate: " + status[0]
-        Bildschirmverwalter.ids.s102.ids.l1.text="\nDie CAN Karte ist " + status[1] + "\nBaudrate: " + status[0]
+        meldung="\nDie CAN Karte ist " + status[1] + "\nBaudrate: " + status[0]
+        Bildschirmverwalter.ids.s0.ids.l1.text=meldung
+        Bildschirmverwalter.ids.s102.ids.l1.text=meldung
+        Bildschirmverwalter.ids.s102.ids.l1.color= 1,1,1,1
+        Bildschirmverwalter.ids.s102.ids.l1.font_size= 20
     pass
 
