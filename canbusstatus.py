@@ -10,7 +10,7 @@ import subprocess
 
 '''
 
-def can0_check():
+def can0_check(Bildschirmverwalter):
     ''' prüft ob can0 auf dem PC existiert'''
 
     try:
@@ -20,8 +20,9 @@ def can0_check():
         subprocess.call("sudo ip link set dev can0 up", shell=True)
         return True
     except:
-        label_hauptbildschrim.text = "\nEs gibt keine CAN Karte can0 auf dem PC"
-
+        keine_can0_karte(Bildschirmverwalter)
+        #meldung="\nEs gibt keine CAN Karte can0 auf dem PC"
+        #Bildschirmverwalter.ids.s0.ids.l1.text = meldung
         return False
 
 def can_read_baudrate():
@@ -73,7 +74,7 @@ def status_ausgabe(Bildschirmverwalter):
     #label_hauptbildschrim.text="Eine Cankarte ist vorhanden"
     if status[1] == "PASSIVE":
         fehlermeldung="\nDie CAN Karte ist " + status[1] + \
-        "\nbitte Abschlusswiderstaende prüfen!!!"
+        "\nbitte die Abschlusswiderstände prüfen!!!"
 
         # Hauptfenster
         Bildschirmverwalter.ids.s0.ids.l1.text=fehlermeldung
@@ -89,3 +90,9 @@ def status_ausgabe(Bildschirmverwalter):
         Bildschirmverwalter.ids.s102.ids.l1.font_size= 20
     pass
 
+def keine_can0_karte(Bildschirmverwalter):
+    meldung = "\nEs gibt keine CAN Karte can0 auf dem PC"
+    Bildschirmverwalter.ids.s0.ids.l1.text = meldung
+    Bildschirmverwalter.ids.s102.ids.l1.text = meldung
+    Bildschirmverwalter.ids.s102.ids.l1.color = 1, 0, 1, 1  # Farbe
+    Bildschirmverwalter.ids.s102.ids.l1.font_size = 30  # Schriftgroesse

@@ -29,7 +29,9 @@ class Hauptbildschirm(Screen):
     def canwerte1_anzeigen(self):
         global Bildschirmverwalter
         fenster_id="s1"
-        Can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
+        global can0_exist
+        if can0_exist == True:
+            Can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
 
     pass
 class Bildschirm1_Canwerte(Screen):
@@ -43,7 +45,9 @@ class Bildschirm1_Canwerte(Screen):
     def canwerte2_anzeigen(self):
         global Bildschirmverwalter
         fenster_id="s2"
-        Can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
+        global can0_exist
+        if can0_exist == True:
+            Can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
 
     def stop(self):
         Stop_CAN_Threads().stop()
@@ -60,7 +64,9 @@ class Bildschirm2_Canwerte(Screen):
     def canwerte1_anzeigen(self):
         global Bildschirmverwalter
         fenster_id="s1"
-        Can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
+        global can0_exist
+        if can0_exist == True:
+            Can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
     pass
 
     def stop(self):
@@ -104,9 +110,12 @@ class Bildschirm_Einzelwert(Screen):
 class Bildschirm_Konfiguration(Screen):pass
 class Baudrate_aendern(Screen):
     def baudrate(self,baudrate):
-        global Bildschirmverwalter
-        canbusstatus.can_set_baudrate(baudrate)
-        status=canbusstatus.status_ausgabe(Bildschirmverwalter)
+        global Bildschirmverwalter, can0_exist
+        if can0_exist == True:
+            canbusstatus.can_set_baudrate(baudrate)
+            canbusstatus.status_ausgabe(Bildschirmverwalter)
+        else:
+            canbusstatus.keine_can0_karte(Bildschirmverwalter)
     pass
 class CAN_Wert_Anzeige(BoxLayout):
     def on_touch_down(self, touch):
@@ -180,9 +189,10 @@ class Programm(App):
         Bildschirmverwalter = self.root
 
         global can0_exist
-        can0_exist = canbusstatus.can0_check()
+        can0_exist = canbusstatus.can0_check(Bildschirmverwalter)
         # Anzeige des Statuses im Haupfenste
-        canbusstatus.status_ausgabe(Bildschirmverwalter)
+        if can0_exist == True:
+            canbusstatus.status_ausgabe(Bildschirmverwalter)
 
         # DBC Datei einlesen und der Variable canbus_konfiguration zuweisen
         dateiname = "CANBusbeschreibung.conf"
