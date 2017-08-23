@@ -5,9 +5,6 @@ import subprocess
     Funktionen:
 
     can0_check prüft ob einen CAN Karte vorhanden ist und gibt die Meldung im Hauptfensteraus
-
-
-
 '''
 
 def can0_check(Bildschirmverwalter):
@@ -57,7 +54,6 @@ def can_set_baudrate(baudrate):
     '''
     Setzt mit Hilfe eines Shellbefehls die Baudrate 1000, 500 oder 250 kHz
     '''
-
     subprocess.call("sudo ip link set dev can0 down", shell=True)
     if baudrate == "1000 kHz":
         subprocess.call("sudo ip link set can0 type can bitrate 1000000", shell=True)
@@ -66,7 +62,6 @@ def can_set_baudrate(baudrate):
     if baudrate == "250 kHz":
         subprocess.call("sudo ip link set can0 type can bitrate 250000", shell=True)
     subprocess.call("sudo ip link set dev can0 up", shell=True)
-
     pass
 
 def status_ausgabe(Bildschirmverwalter):
@@ -96,3 +91,7 @@ def keine_can0_karte(Bildschirmverwalter):
     Bildschirmverwalter.ids.s102.ids.l1.text = meldung
     Bildschirmverwalter.ids.s102.ids.l1.color = 1, 0, 1, 1  # Farbe
     Bildschirmverwalter.ids.s102.ids.l1.font_size = 30  # Schriftgroesse
+
+def can0_timeout():
+    Bildschirmverwalter.ids.s1.ids.a1.text="timeout"
+    pass

@@ -25,7 +25,7 @@ class CANBUS_Konfiguration():
             konf.append([int(A[0]), int(A[1]), A[2].replace(" ",""), float(A[4]),
             float(A[5]), float(A[6]), float(A[7]), A[8].replace(" ","")])
             i +=1
-
+        print("Konfiguration:\t",konf)
         '''
         Bot_id = int(A[0])
         Startbit = int(A[1])
@@ -51,8 +51,8 @@ class CANBUS_Konfiguration():
             id_nr.append([
                           konf[n-1][0],
                           konf[n-1][1],
-                            konf[0][3],
-                            konf[0][4],
+                          konf[n-1][3],
+                          konf[n-1][4],
                           n
                          ])
             name_einheit.append([konf[n-1][2],konf[n-1][7],n])
@@ -65,6 +65,7 @@ class CANBUS_Konfiguration():
         '''
 
         self.id_nr=id_nr
+        print("id_nr:\t",self.id_nr)
         self.name_einheit=name_einheit
 
         return (self)

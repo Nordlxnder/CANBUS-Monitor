@@ -22,6 +22,7 @@ class Hauptbildschirm(Screen):
 
         global canbus_konfiguration
         self.redu_botschaften=CANBUS().botschaften_sortieren(canbus_konfiguration.id_nr[0:4])
+        print("redo_bot:\t",self.redu_botschaften)
         global can0_exist
         if can0_exist == True:
             Can_lesen().start(self.redu_botschaften)
@@ -195,8 +196,8 @@ class Programm(App):
             canbusstatus.status_ausgabe(Bildschirmverwalter)
 
         # DBC Datei einlesen und der Variable canbus_konfiguration zuweisen
-        dateiname = "CANBusbeschreibung.conf"
-        #dateiname="canbus.conf"
+        #dateiname = "CANBusbeschreibung.conf"
+        dateiname="./Beispieldateien/canbus.conf"
         '''
         <canbus_konfiguration> besitzt folgende Atributte
             .id_nr  beinhaltet [Id Startbit Faktor Offset Nummer der Anzeige]
