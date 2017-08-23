@@ -91,19 +91,18 @@ class Can_anzeigen():
         thread_anzeigen.start()
         thread_anzeigen.Bildschirmverwalter=Bildschirmverwalter
         thread_anzeigen.fenster_id=fenster_id
+
 class Can_werte_anzeigen(threading.Thread):
     '''
     Quelle:
 
         https://docs.python.org/3/library/threading.html
     '''
-
     def __init__ (self,redu_botschaften,stop):
         threading.Thread.__init__(self,name="Anzeige")
         #threading.Thread.__init__(self,name="test")
         self.redu_botschaften = redu_botschaften
         self.stop=stop
-
 
     def run(self):
         global stop, can_messpkt
@@ -118,8 +117,24 @@ class Can_werte_anzeigen(threading.Thread):
 
             while n <len(self.redu_botschaften):
                 speicher=can_messpkt[self.redu_botschaften[n][1]]
-                if str(speicher)==str(9999) :
+                if str(speicher)==str("keine Werte") :
                     #print("Es wird keine Botschaft gesendet")
+                    # Anzahl der Werte in der Botschaft
+                    anzahl=len(self.redu_botschaften[n])-1
+                    i=2
+                    while i <= anzahl:
+                        anzeige_nr=self.redu_botschaften[n][i][3]
+                        wert_kurz="keine Werte"
+
+                        if self.fenster_id=="s1":
+                            a = eval("self.Bildschirmverwalter.ids."+str(self.fenster_id)+".ids.a" + str(anzeige_nr))
+                        if self.fenster_id=="s2":
+                            a = eval("self.Bildschirmverwalter.ids."+str(self.fenster_id)+".ids.a" + str(anzeige_nr-4))
+                        if self.fenster_id=="s100":
+                            a = eval("self.Bildschirmverwalter.ids."+str(self.fenster_id) )
+                        a.ids.w1.text=wert_kurz
+
+                        i +=1
                     pass
                 else:
                     # Aufloesen der Daten in der Speicherzelle nach Werten und ID
@@ -229,7 +244,7 @@ class Can_lesen():
         global can_messpkt
         can_messpkt=[]
         for x in range (4):
-            can_messpkt.append(9999)
+            can_messpkt.append("keine Werte")
         self.redu_botschaften=redu_botschaften
         stop= False
 
@@ -240,14 +255,13 @@ class Can_lesen():
 
             botschschafts_id=self.redu_botschaften[i][0]
             speicher_nr=self.redu_botschaften[i][1]
-            try:
-                current=Can_bot_lesen(botschschafts_id, stop , speicher_nr)
-                # der Deamon wird aktiviert damit beim Programm
-                # schliessen alle threads beendet werden
-                current.daemon = True
-                current.start()
-            except current.Timeout as err:
-                logger.error({"message Meine Meldung": err.message})
+
+            current=Can_bot_lesen(botschschafts_id, stop , speicher_nr)
+            # der Deamon wird aktiviert damit beim Programm
+            # schliessen alle threads beendet werden
+            current.daemon = True
+            current.start()
+
 
 class Can_bot_lesen(threading.Thread):
     '''
@@ -257,7 +271,6 @@ class Can_bot_lesen(threading.Thread):
 
         jede Botschschaft benötigt einen eignen Socket
         deshalb wird in jedem Thread die Schnittstelle neu eingebunden
-
     '''
 
     def __init__ (self,id,stop, speicher_nr):
@@ -269,27 +282,35 @@ class Can_bot_lesen(threading.Thread):
 
     def run(self):
 
-        can_interface = socket.socket(socket.AF_CAN, socket.SOCK_RAW, socket.CAN_RAW)
+        self.can_interface = socket.socket(socket.AF_CAN, socket.SOCK_RAW, socket.CAN_RAW)
 
         # damit blockiert das Programm nicht wenn keine Datengesendet werden.
-        can_interface.settimeout(2)
+        self.can_interface.settimeout(2)
         # Name der Schnittstelle
         interface = "can0"
-        can_interface.bind((interface,))
+        self.can_interface.bind((interface,))
 
         # Filter setzen
         filter_mask=0x7FF
-        can_interface.setsockopt(socket.SOL_CAN_RAW,
-        socket.CAN_RAW_FILTER,
-        struct.pack("II",self.id,filter_mask))
+        self.can_interface.setsockopt(socket.SOL_CAN_RAW,socket.CAN_RAW_FILTER,struct.pack("II",self.id,filter_mask))
 
         # CAN lesen
         global stop, can_messpkt
         stop=self.stop
+        FMT = "<IB3x2s2s2s2s"
         while (not stop):
             try:
-                can_messpkt[self.speicher_nr]=can_interface.recv(16)
-            #except Timeout as err:
+                wert_der_botschaft=self.can_interface.recv(16)
+                #print("Testonline:\t",self.speicher_nr,can_messpkt[self.speicher_nr])
+                can_id = struct.unpack(FMT, wert_der_botschaft)
+
+                # da der Filter nicht gleich zum Anfang wirkt
+                # werden die falschen Botschaften aussortiert
+                if can_id[0] == self.id:
+                    can_messpkt[self.speicher_nr]=wert_der_botschaft
+                else:
+                    can_messpkt[self.speicher_nr]="keine Werte"
+
             except OSError as err:
                 print("OS error: {0}".format(err))
                 break
