@@ -36,6 +36,7 @@ import struct
 import threading ,sys
 import binascii
 import time
+import canbusstatus   # Status und setzen der Baudrate
 
 
 class Anzeigenelemente():
@@ -118,7 +119,7 @@ class Can_werte_anzeigen(threading.Thread):
             while n <len(self.redu_botschaften):
                 speicher=can_messpkt[self.redu_botschaften[n][1]]
                 if str(speicher)==str("keine Werte") :
-                    #print("Es wird keine Botschaft gesendet")
+
                     # Anzahl der Werte in der Botschaft
                     anzahl=len(self.redu_botschaften[n])-1
                     i=2
@@ -133,6 +134,9 @@ class Can_werte_anzeigen(threading.Thread):
                         if self.fenster_id=="s100":
                             a = eval("self.Bildschirmverwalter.ids."+str(self.fenster_id) )
                         a.ids.w1.text=wert_kurz
+                        a.ids.w1.font_size=30
+                        # Einheit im Fehlerfall ausblenden
+                        a.ids.e1.text=" "
 
                         i +=1
                     pass
@@ -313,6 +317,8 @@ class Can_bot_lesen(threading.Thread):
 
             except OSError as err:
                 print("OS error: {0}".format(err))
+                # Anzeige der Fehlermeldung auf Seite 1
+                canbusstatus.can0_timeout()
                 break
                 #logger.error({"message Meine Meldung2": err.message})
 

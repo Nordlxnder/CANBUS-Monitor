@@ -32,7 +32,7 @@ class Hauptbildschirm(Screen):
         global can0_exist
         if can0_exist == True:
             Can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
-
+            canbusstatus.can0_status_ok()
     pass
 class Bildschirm1_Canwerte(Screen):
     def canwerte2_lesen(self):
@@ -48,7 +48,7 @@ class Bildschirm1_Canwerte(Screen):
         global can0_exist
         if can0_exist == True:
             Can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
-
+            canbusstatus.can0_status_ok()
     def stop(self):
         Stop_CAN_Threads().stop()
     pass
@@ -67,6 +67,7 @@ class Bildschirm2_Canwerte(Screen):
         global can0_exist
         if can0_exist == True:
             Can_anzeigen().start(self.redu_botschaften,Bildschirmverwalter,fenster_id)
+            canbusstatus.can0_status_ok()
     pass
 
     def stop(self):
@@ -216,7 +217,7 @@ class Programm(App):
         liste_anzeigen = Anzeigenelemente().liste_erstellen(Bildschirmverwalter)
         Anzeigenelemente().Anzeige_Name_Einheit_aktualisieren(liste_anzeigen, canbus_konfiguration.name_einheit)
         # Hintergrundfarbe ist Weis
-        Window.clearcolor = (0.1,0.3,0.8,1)
+        Window.clearcolor = (0.1,0.3,0.8,1)  # Blau
         # groesse des Fenters festlegen
         #Window.size = (800, 480)
         #Window.fullscreen = True

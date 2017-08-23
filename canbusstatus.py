@@ -7,9 +7,10 @@ import subprocess
     can0_check prüft ob einen CAN Karte vorhanden ist und gibt die Meldung im Hauptfensteraus
 '''
 
-def can0_check(Bildschirmverwalter):
+def can0_check(bildschirmverwalter):
     ''' prüft ob can0 auf dem PC existiert'''
-
+    global Bildschirmverwalter
+    Bildschirmverwalter=bildschirmverwalter
     try:
         ausgabe = subprocess.check_output('ip -details link show can0', shell=True)
         subprocess.call("sudo ip link set dev can0 down", shell=True)
@@ -93,5 +94,22 @@ def keine_can0_karte(Bildschirmverwalter):
     Bildschirmverwalter.ids.s102.ids.l1.font_size = 30  # Schriftgroesse
 
 def can0_timeout():
-    Bildschirmverwalter.ids.s1.ids.a1.text="timeout"
+    global Bildschirmverwalter
+    Bildschirmverwalter.ids.s1.ids.l2.text="timeout"
+    Bildschirmverwalter.ids.s1.ids.l2.color= 1,0,0,1     # Farbe
+    Bildschirmverwalter.ids.s1.ids.l2.font_size= 20
+
+    Bildschirmverwalter.ids.s2.ids.l2.text="timeout"
+    Bildschirmverwalter.ids.s2.ids.l2.color= 1,0,0,1     # Farbe
+    Bildschirmverwalter.ids.s2.ids.l2.font_size= 20
+    pass
+
+def can0_status_ok():
+    global Bildschirmverwalter
+    Bildschirmverwalter.ids.s1.ids.l2.text="Status OK"
+    Bildschirmverwalter.ids.s1.ids.l2.color= 1,1,1,1     # Farbe
+    Bildschirmverwalter.ids.s1.ids.l2.font_size= 15
+    Bildschirmverwalter.ids.s2.ids.l2.text="Status OK"
+    Bildschirmverwalter.ids.s2.ids.l2.color= 1,1,1,1     # Farbe
+    Bildschirmverwalter.ids.s2.ids.l2.font_size= 15
     pass
