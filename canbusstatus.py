@@ -90,8 +90,8 @@ def keine_can0_karte(Bildschirmverwalter):
     meldung = "\nEs gibt keine CAN Karte can0 auf dem PC"
     Bildschirmverwalter.ids.s0.ids.l1.text = meldung
     Bildschirmverwalter.ids.s102.ids.l1.text = meldung
-    Bildschirmverwalter.ids.s102.ids.l1.color = 1, 0, 1, 1  # Farbe
-    Bildschirmverwalter.ids.s102.ids.l1.font_size = 30  # Schriftgroesse
+    Bildschirmverwalter.ids.s102.ids.l1.color = 1, 1, 1, 1  # Farbe
+    Bildschirmverwalter.ids.s102.ids.l1.font_size = 35  # Schriftgroesse
 
 def can0_timeout():
     global Bildschirmverwalter

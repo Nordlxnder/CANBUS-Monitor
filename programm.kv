@@ -29,12 +29,17 @@
     valign: 'middle'
 
 <Konf@Label>:
-    font_size: 35
+    font_size: 33
     color: 1,1,1,1
     text_size: self.size
     halign: 'left'
     #size_hint: 1,0.1
     #valign: 'middle'
+
+<Button1@Button>:
+    font_size:  20
+    background_normal: './Bilder/s0_schliessen_n.png'
+    background_down: './Bilder/s0_schliessen_d.png'
 
 
 ##################################################################################
@@ -63,6 +68,11 @@
 
 ###### Hauptfenster ######
 <Hauptbildschirm>:
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: './Bilder/s0_start.png'
     BoxLayout:
         orientation: 'vertical'
         Label:
@@ -72,14 +82,17 @@
 
         BoxLayout:
             size_hint: 1,0.2
-            Button:
+            padding: 5
+            spacing: 5
+            Button1:
                 text: "Konfiguration"
                 on_release:
                     root.manager.transition = SlideTransition()
                     root.manager.transition.duration = 0.3
                     root.manager.transition.direction = 'down'
                     app.root.current="bsk"
-            Button:
+
+            Button1:
                 text: "Canwerte anzeigen"
                 on_release:
                     root.canwerte1_lesen()
@@ -88,17 +101,25 @@
                     root.manager.transition.duration = 0.6
                     root.manager.transition.direction = 'left'
                     app.root.current="bs1cw"
-            Button:
+
+            Button1:
                 text: 'Schliessen'
                 on_release:
                     root.stop()
                     app.stop()
 
+
 ###### Konfigurationsfenster ######
 <Bildschirm_Konfiguration>:
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: './Bilder/s0_hintergrund.png'
     BoxLayout:
         orientation: 'vertical'
         BoxLayout:
+            padding: 8
             orientation: 'vertical'
             Konf:
                 id: a1
@@ -131,15 +152,17 @@
                 id: a10
                 text: " "
         BoxLayout:
+            padding: 5
+            spacing: 5
             size_hint: 1,0.2
-            Button:
+            Button1:
                 text: 'zurück'
                 on_release:
                     root.manager.transition = SlideTransition()
                     root.manager.transition.duration = 0.6
                     root.manager.transition.direction = 'up'
                     app.root.current="hbs"
-            Button:
+            Button1:
                 text: 'Baudrate setzen'
                 on_release:
                     root.manager.transition = SlideTransition()
@@ -149,7 +172,14 @@
 
 ###### Baudrate Baudrate_aendern ######
 <Baudrate_aendern>:
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: './Bilder/s0_hintergrund.png'
     BoxLayout:
+        padding: 50
+        spacing: 10
         orientation: 'vertical'
         Label:
             id: l1
@@ -157,21 +187,24 @@
             color: 0,1,0,1
             font_size: 20
             markup: True
-        Button:
+        Label:
+            id:l2
+            text: ' '
+        Button1:
             text: '1000 kBaud'
             on_release:
                 root.baudrate('1000 kHz')
-        Button:
+        Button1:
             text: '500 kBaud'
             on_release:
                 root.baudrate('500 kHz')
-        Button:
+        Button1:
             text: '250 kBaud'
             on_release:
                 root.baudrate('250 kHz')
 
         #size_hint: 1,0.2
-        Button:
+        Button1:
             text: 'zurück'
             on_release:
                 root.manager.transition = SlideTransition()
@@ -244,7 +277,7 @@
                 text: 'CAN Werte Fenster 2'
             Label:
                 id: l2
-                color: 0,0,0,1
+                #color: 0,0,0,1
                 size_hint: 0.15,1
                 text: 'Status OK'
         GridLayout:

@@ -5,7 +5,7 @@ from kivy.app import App
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
-import time
+
 import canbusstatus   # Status und setzen der Baudrate
 from CANBusbeschreibung_einlesen import CANBUS_Konfiguration
 from can_lesen_anzeigen import Anzeigenelemente, CANBUS
