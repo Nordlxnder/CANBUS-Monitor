@@ -2,7 +2,7 @@ Funktion:
 
 	Onlineanzeige von CAN Werten
 	Es können 8 Canwerte a 4 auf einer Seite angezeigt werden
-	jeder Wert kann du antippen der Einzelanzeige auf volle 
+	jeder Wert kann durch antippen der Einzelanzeige auf volle 
 	Bildschirmgröße gebracht werden
 
 Voraussetzung:
