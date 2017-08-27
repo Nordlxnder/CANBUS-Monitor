@@ -45,10 +45,8 @@ class Anzeigenelemente():
         '''
         Es wird eine Liste mit 8 Anzeigeelementen
         von Seite 1 und Seite2 erstellt
-
         root = Bildschirmverwalter
         '''
-
         global liste_anzeigen
         liste_anzeigen=[]
         seite = 1
@@ -73,12 +71,14 @@ class Anzeigenelemente():
         name_einheit enthält die Elemente Name und einheit von 1 bis x
         die aus der DBC Datei gelesen wurden
         '''
-
         bis = len(name_einheit) - 1
         i = 0
         while i <= bis:
             liste_anzeigen[i].ids.n1.text = name_einheit[i][0]
             liste_anzeigen[i].ids.e1.text = " " + name_einheit[i][1]
+            # text_ori Orginal Einheit um nach einem Fehlerfall die Einheit
+            # wieder richtig anzuzeigen
+            liste_anzeigen[i].ids.e1.text_ori = " " + name_einheit[i][1]
             i += 1
         pass
 
@@ -118,14 +118,15 @@ class Can_werte_anzeigen(threading.Thread):
 
             while n <len(self.redu_botschaften):
                 speicher=can_messpkt[self.redu_botschaften[n][1]]
-                if str(speicher)==str("keine Werte") :
+                if str(speicher)==str("keine Werte") or str(speicher)==str(" ") :
 
                     # Anzahl der Werte in der Botschaft
                     anzahl=len(self.redu_botschaften[n])-1
                     i=2
                     while i <= anzahl:
                         anzeige_nr=self.redu_botschaften[n][i][3]
-                        wert_kurz="keine Werte"
+                        #wert_kurz="keine Werte"
+                        wert_kurz=str(speicher)
 
                         if self.fenster_id=="s1":
                             a = eval("self.Bildschirmverwalter.ids."+str(self.fenster_id)+".ids.a" + str(anzeige_nr))
@@ -134,10 +135,10 @@ class Can_werte_anzeigen(threading.Thread):
                         if self.fenster_id=="s100":
                             a = eval("self.Bildschirmverwalter.ids."+str(self.fenster_id) )
                         a.ids.w1.text=wert_kurz
-                        a.ids.w1.font_size=30
+                        #a.ids.w1.font_size=40
+                        a.ids.w1.color= 1,0,0,1     # Farbe
                         # Einheit im Fehlerfall ausblenden
-                        a.ids.e1.text=" "
-
+                        a.ids.e1.text=""
                         i +=1
                     pass
                 else:
@@ -172,8 +173,12 @@ class Can_werte_anzeigen(threading.Thread):
                             a = eval("self.Bildschirmverwalter.ids."+str(self.fenster_id)+".ids.a" + str(anzeige_nr-4))
                         if self.fenster_id=="s100":
                             a = eval("self.Bildschirmverwalter.ids."+str(self.fenster_id) )
-                        a.ids.w1.text=wert_kurz
 
+                        a.ids.w1.text=wert_kurz
+                        a.ids.w1.color= 1,1,1,1    # Farbe Weiss
+
+                        if len(a.ids.e1.text)==0:
+                            a.ids.e1.text=a.ids.e1.text_ori
                         i +=1
                 n +=1
         pass
@@ -248,7 +253,7 @@ class Can_lesen():
         global can_messpkt
         can_messpkt=[]
         for x in range (4):
-            can_messpkt.append("keine Werte")
+            can_messpkt.append(" ")
         self.redu_botschaften=redu_botschaften
         stop= False
 
@@ -313,11 +318,13 @@ class Can_bot_lesen(threading.Thread):
                 if can_id[0] == self.id:
                     can_messpkt[self.speicher_nr]=wert_der_botschaft
                 else:
-                    can_messpkt[self.speicher_nr]="keine Werte"
+                    #can_messpkt[self.speicher_nr]="keine Werte"
+                    can_messpkt[self.speicher_nr]=" "
 
             except OSError as err:
                 print("OS error: {0}".format(err))
                 # Anzeige der Fehlermeldung auf Seite 1
+                can_messpkt[self.speicher_nr]="keine Werte"
                 canbusstatus.can0_timeout()
                 break
                 #logger.error({"message Meine Meldung2": err.message})

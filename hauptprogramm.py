@@ -128,7 +128,9 @@ class CAN_Wert_Anzeige(BoxLayout):
             # Zuweisung des Textlabel für das Textlabel der Einzelbildanzeige
             obj_Einzelwert.ids.n1.text =self.ids.n1.text
             obj_Einzelwert.ids.w1.text =self.ids.w1.text
+            obj_Einzelwert.ids.w1.font_size= 100
             obj_Einzelwert.ids.e1.text =self.ids.e1.text
+            obj_Einzelwert.ids.e1.text_ori =self.ids.e1.text_ori
             obj_Einzelwert.altesFenster=self.parent.parent.parent.name
 
             # Umschalten zur Einwertanzeige
@@ -179,9 +181,6 @@ class Programm(App):
            3 Einlesen der CANBUS Beschreibungsdatei
              Anpassen der Anzeigeelemente mit entspechend
              der Beschreibungsdatei (Name und Einheit)
-
-           4 bindet den Socket an can0
-
         '''
 
         # 1 Überprüfung und Anzeige auf den Hauptbildschirm
@@ -216,12 +215,12 @@ class Programm(App):
         # erstellt eine Liste der Anzeigeelement für die weitere Verwendung
         liste_anzeigen = Anzeigenelemente().liste_erstellen(Bildschirmverwalter)
         Anzeigenelemente().Anzeige_Name_Einheit_aktualisieren(liste_anzeigen, canbus_konfiguration.name_einheit)
+
         # Hintergrundfarbe ist Weis
         Window.clearcolor = (0.1,0.3,0.8,1)  # Blau
         # groesse des Fenters festlegen
         #Window.size = (800, 480)
         #Window.fullscreen = True
-
 
 if __name__=="__main__":
     Programm().run()

@@ -245,8 +245,10 @@
                 id: a4
                 ref_nr: "3"
         BoxLayout:
+            padding: 5
+            spacing: 5
             size_hint: 1,0.2
-            Button:
+            Button1:
                 text: 'zurück'
                 on_release:
                     root.stop()
@@ -254,7 +256,7 @@
                     root.manager.transition.duration = 0.6
                     root.manager.transition.direction = 'right'
                     app.root.current="hbs"
-            Button:
+            Button1:
                 text: 'Weitere Canwerte'
                 on_release:
                     root.stop()
@@ -298,8 +300,10 @@
                 id: a4
                 ref_nr: "3"
         BoxLayout:
+            padding: 5
+            spacing: 5
             size_hint: 1,0.2
-            Button:
+            Button1:
                 text: 'zurück'
                 on_release:
                     root.stop()
@@ -309,7 +313,7 @@
                     root.manager.transition.duration = 0.6
                     root.manager.transition.direction = 'right'
                     app.root.current="bs1cw"
-            Button:
+            Button1:
                 text: 'Hauptbilschirm'
                 on_release:
                     root.stop()
