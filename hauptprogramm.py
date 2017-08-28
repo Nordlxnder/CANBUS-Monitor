@@ -217,7 +217,7 @@ class Programm(App):
         Anzeigenelemente().Anzeige_Name_Einheit_aktualisieren(liste_anzeigen, canbus_konfiguration.name_einheit)
 
         # Hintergrundfarbe ist Weis
-        Window.clearcolor = (0.1,0.3,0.8,1)  # Blau
+        Window.clearcolor = (0.1,0.3,0.4,0)  # Blau
         # groesse des Fenters festlegen
         #Window.size = (800, 480)
         #Window.fullscreen = True

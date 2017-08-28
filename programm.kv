@@ -2,13 +2,14 @@
 #:import NoTransition kivy.uix.screenmanager.NoTransition
 
 <Name_des_werts@Label>
-    canvas.before:
-        Color:
-            rgb:1,1,1,1
-        Rectangle:
-            pos: self.pos
-            size: self.size
-        #source: 'HD_rahmen.png'
+    #canvas.before:
+    #    Color:
+    #        rgb:1,1,1,1
+    #    Rectangle:
+    #        pos: self.pos
+    #        size: self.size
+    #    #source: 'HD_rahmen.png'
+    #        #source: './Bilder/anzeige_name.png'
     font_size: 30
     size_hint: 1, 0.3
     color: 0,0,0,1
@@ -48,6 +49,12 @@
 # Anzeige
 ############
 <CAN_Wert_Anzeige>:
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            #source: 'HD_rahmen.png'
+            source: './Bilder/anzeige.png'
     BoxLayout:
         orientation: 'vertical'
         #canvas.after:
@@ -216,6 +223,7 @@
 
 <Bildschirm1_Canwerte>:
     BoxLayout:
+        padding: 10
         orientation: 'vertical'
         BoxLayout:
             size_hint: 1,0.1
@@ -230,8 +238,8 @@
         GridLayout:
             name: 'botschaft'
             rows: 2
-            padding: 1
-            spacing: 1
+            padding: 5
+            spacing: 5
             CAN_Wert_Anzeige:
                 id: a1
                 ref_nr: "0"
@@ -271,6 +279,7 @@
 
 <Bildschirm2_Canwerte>:
     BoxLayout:
+        padding: 10
         orientation: 'vertical'
         BoxLayout:
             size_hint: 1,0.1
@@ -285,8 +294,8 @@
         GridLayout:
             name: 'botschaft'
             rows: 2
-            padding: 1
-            spacing: 1
+            padding: 5
+            spacing: 5
             CAN_Wert_Anzeige:
                 id: a1
                 ref_nr: "0"
@@ -325,6 +334,13 @@
 ###### Bildschirm für Einzelwert anzeige ######
 
 <Bildschirm_Einzelwert>:
+
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: './Bilder/anzeige.png'
+
     BoxLayout:
         orientation: 'vertical'
         Name_des_werts:
@@ -356,6 +372,7 @@ Bildschirmverwalter:
     Bildschirm_Einzelwert:
         id: s100
         name: 'bsew'
+
     Bildschirm_Konfiguration:
         id: s101
         name: 'bsk'
